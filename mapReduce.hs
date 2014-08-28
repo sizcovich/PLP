@@ -35,9 +35,7 @@ insertWith f m l xs = if ((?) xs m)
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
---quiero que ponga todas las claves en listas y si dos claves son la misma que las concatene
--- tomo una tupla, si ya puse la clave en el dict agrego la clave, sino lo pongo con [clave]
-groupByKey xs = foldr (\x y -> (insertWith (++) (fst x) ([snd x]) y)) [] xs
+groupByKey xs = foldl (\y x -> (insertWith (++) (fst x) ([snd x]) y)) [] xs
 --Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
 --[("calle",["Jean␣Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
 
