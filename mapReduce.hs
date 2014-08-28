@@ -12,7 +12,7 @@ belongs m xs = foldr (\x y -> (m == (fst x)) || y) False xs
 
 
 (?) :: Eq k => Dict k v -> k -> Bool
-(?) m xs = belongs xs m
+(?) xs m = belongs m xs
 --Main> [("calle",[3]),("city",[2,1])] ? "city" 
 --True
 
@@ -21,7 +21,7 @@ get :: Eq k => k -> Dict k v -> v
 get m xs = foldr (\x y -> if (m == (fst x)) then (snd x) else y) (snd (head xs)) xs
 
 (!) :: Eq k => Dict k v -> k -> v
-(!) m xs = get xs m
+(!) xs m = get m xs
 --Main> [("calle",[3]),("city",[2,1])] ! "city" 
 --[2,1]
 
@@ -53,7 +53,8 @@ type Reducer k v b = (k, [v]) -> [b]
 
 -- Ejercicio 6
 distributionProcess :: Int -> [a] -> [[a]]
-distributionProcess = undefined
+distributionProcess i xs = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i []) xs
+
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]

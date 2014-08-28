@@ -16,6 +16,12 @@ main = hspec $ do
       [("V", [1]), ("O", [2]), ("S", [0])] ? "V"  `shouldBe` True
 
   describe "Utilizando Map Reduce" $ do
+    it "divide la carga de manera balanceada" $ do
+      distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7,12],[1,6,11]]
+      distributionProcess 2 ["a","b","c","d","e"]  `shouldMatchList` [["b","d"],["a","c","e"]]
+      distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7],[1,6]]
+      distributionProcess 5 [1 ,2 ,3]  `shouldMatchList` [[],[],[3],[2],[1]]
+    
     it "visitas por monumento funciona en algún orden" $ do
       visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)] 
 
