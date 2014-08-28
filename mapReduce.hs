@@ -62,10 +62,11 @@ mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
 mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
 --mapperProcess (pruebaMapper) [1,2,3]
 --mapperProcess (pruebaMapper) [4,5,6]
+--mapperProcess (pruebaMapper) [1,2]
 
 
-pruebaMapper :: Int -> [(String,Int)]
-pruebaMapper n = [(x,y) | y <- [1..8], x <- ["hola","casa","hola","coche","casa","tren"], y < n]
+pruebaMapper :: (String,String) -> [(String,Char)]
+pruebaMapper (x,y) = [(y,'I')]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
