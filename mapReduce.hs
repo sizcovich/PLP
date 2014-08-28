@@ -27,7 +27,7 @@ get m xs = foldr (\x y -> if (m == (fst x)) then (snd x) else y) (snd (head xs))
 
 -- Ejercicio 3
 insertWith :: Eq k => (v -> v -> v) -> k -> v -> Dict k v -> Dict k v
-insertWith f m l xs = if ((?) xs m) 
+insertWith f m l xs = if ((?) xs m)
                       then (foldr (\x rec -> if (m == fst x) then ((fst x, (f (snd x) l)):rec) else (x:rec)) [] xs) 
                       else (xs++[(m,l)])
 --Main> insertWith (++) 2 ['p'] (insertWith (++) 1 ['a','b'] (insertWith (++) 1 ['l'] []))
@@ -35,10 +35,10 @@ insertWith f m l xs = if ((?) xs m)
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
---quiero que ponga todas las claves en listas y si dos claves tienen la misma clave que las concatene
+--quiero que ponga todas las claves en listas y si dos claves son la misma que las concatene
 -- tomo una tupla, si ya puse la clave en el dict agrego la clave, sino lo pongo con [clave]
-groupByKey xs = foldr (\x y -> (insertWith (++) (fst x) ([snd x]) xs)) [] xs
---*Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
+groupByKey xs = foldr (\x y -> (insertWith (++) (fst x) ([snd x]) y)) [] xs
+--Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
 --[("calle",["Jean␣Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
 
 -- Ejercicio 5
