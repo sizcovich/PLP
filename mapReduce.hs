@@ -51,6 +51,7 @@ unionWith f xs ys = foldl (\y x -> (insertWith f (fst x) (snd x) y)) [] (xs++ys)
 type Mapper a k v = a -> [(k,v)]
 type Reducer k v b = (k, [v]) -> [b]
 
+
 -- Ejercicio 6
 distributionProcess :: Int -> [a] -> [[a]]
 distributionProcess i xs = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i []) xs
@@ -58,7 +59,13 @@ distributionProcess i xs = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
-mapperProcess = undefined
+mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
+--mapperProcess (pruebaMapper) [1,2,3]
+--mapperProcess (pruebaMapper) [4,5,6]
+
+
+pruebaMapper :: Int -> [(String,Int)]
+pruebaMapper n = [(x,y) | y <- [1..8], x <- ["hola","casa","hola","coche","casa","tren"], y < n]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
