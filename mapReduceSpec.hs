@@ -25,6 +25,7 @@ main = hspec $ do
     it "combina los resultados de cada maquina" $ do
       combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I']),("Amsterdam", ['I','I'])]] `shouldBe` [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]
       combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Buenos Aires",['I']),("San Pablo", ['I','I'])]] `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Buenos Aires","I"),("Cairo","I"),("San Pablo","II")]
+      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I','I','I'])]] `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Cairo","IIII")]
 
     --it "visitas por monumento funciona en algún orden" $ do
     --  visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)] 
