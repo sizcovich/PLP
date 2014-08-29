@@ -35,7 +35,7 @@ insertWith f m l xs = if ((?) xs m)
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
-groupByKey xs = foldl (\y x -> (insertWith (++) (fst x) ([snd x]) y)) [] xs
+groupByKey = foldl (\y x -> (insertWith (++) (fst x) ([snd x]) y)) []
 --Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
 --[("calle",["Jean␣Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
 
@@ -54,15 +54,13 @@ type Reducer k v b = (k, [v]) -> [b]
 
 -- Ejercicio 6
 distributionProcess :: Int -> [a] -> [[a]]
-distributionProcess i xs = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i []) xs
+distributionProcess i = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i [])
 
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
 mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
---mapperProcess (pruebaMapper) [1,2,3]
---mapperProcess (pruebaMapper) [4,5,6]
---mapperProcess (pruebaMapper) [1,2]
+--mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
 
 
 pruebaMapper :: (String,String) -> [(String,Char)]
@@ -70,7 +68,8 @@ pruebaMapper (x,y) = [(y,'I')]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
-combinerProcess = undefined
+combinerProcess xs = undefined
+  --unionWith (++) [] (foldr (\x y -> (head x):y) [] xs)
 
 -- Ejercicio 9
 reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
