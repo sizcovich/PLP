@@ -22,9 +22,13 @@ main = hspec $ do
       distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7],[1,6]]
       distributionProcess 5 [1 ,2 ,3]  `shouldMatchList` [[],[],[3],[2],[1]]
     
-    it "visitas por monumento funciona en algún orden" $ do
-      visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)] 
+    it "combina los resultados de cada maquina" $ do
+      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I']),("Amsterdam", ['I','I'])]] `shouldBe` [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]
+      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Buenos Aires",['I']),("San Pablo", ['I','I'])]] `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Buenos Aires","I"),("Cairo","I"),("San Pablo","II")]
 
-    it "monumentosTop devuelve los más visitados en algún orden" $ do 
-      monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"] 
-      `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])
+    --it "visitas por monumento funciona en algún orden" $ do
+    --  visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)] 
+
+    --it "monumentosTop devuelve los más visitados en algún orden" $ do 
+    --  monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"] 
+    --  `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])

@@ -68,8 +68,10 @@ pruebaMapper (x,y) = [(y,'I')]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
-combinerProcess xs = undefined
-  --unionWith (++) [] (foldr (\x y -> (head x):y) [] xs)
+combinerProcess xss = order (foldr (\x y -> unionWith (++) x y) [] xss)
+
+order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
+order xs = foldr (\x y -> order ([w | w <-y, fst(w) < fst(x)]) ++ [x] ++ order ([z | z <-y, fst(z) >= fst(x)])) [] xs
 
 -- Ejercicio 9
 reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
