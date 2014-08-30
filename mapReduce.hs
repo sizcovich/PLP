@@ -8,7 +8,7 @@ type Dict k v = [(k,v)]
 
 -- Ejercicio 1
 belongs :: Eq k => k -> Dict k v -> Bool
-belongs m = foldr	(\x y -> (m == (fst x)) || y)
+belongs m = foldr 	(\x y -> (m == (fst x)) || y)
 						False
 
 
@@ -19,8 +19,9 @@ belongs m = foldr	(\x y -> (m == (fst x)) || y)
 
 -- Ejercicio 2
 get :: Eq k => k -> Dict k v -> v
-get m = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y) 
+get m xs = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y) 
 					(snd (head xs))
+					xs
 
 (!) :: Eq k => Dict k v -> k -> v
 (!) xs m = get m xs
