@@ -70,16 +70,10 @@ distributionProcess i = foldr 	(\m ns -> tail(ns) ++ [m:head(ns)])
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
-<<<<<<< HEAD
-mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
---mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam"),("Homero", "Rumania")]
-=======
 mapperProcess xs ys = groupByKey (foldr 	(\x y -> (xs x)++y)
 											[]
 											ys)
 --mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
->>>>>>> FETCH_HEAD
-
 
 pruebaMapper :: (String,String) -> [(String,Char)]
 pruebaMapper (x,y) = [(y,'I')]
