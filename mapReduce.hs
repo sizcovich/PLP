@@ -96,11 +96,47 @@ insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [g
 
 -- Ejercicio 9
 reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
-reducerProcess = undefined
+reducerProcess red ls = 	concat (foldr	(\x rec -> (red x) : rec)
+											[[]]
+											ls)
 
--- Ejercicio 10
+
+
+reducerExample :: (k, v) -> [k]
+reducerExample par = [fst par]
+
+distributionExample = distributionProcess 2 [1,2,3,4,5,6,7,8] 
+
+-- Ejercicio 10 
+-- {-
 mapReduce :: (Eq k, Ord k) => Mapper a k v -> Reducer k v b -> [a] -> [b]
-mapReduce = undefined
+mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
+
+							where combinedList = combinerProcess mappedProcess
+								-- mappedProcess :: [[(k,[v])]]		(Input)
+								-- combinedProcess :: [(k,[v])]		(Output)
+
+								where mappedProcess =  (foldr	(\x rec -> (mapperProcess fMap x) : rec)
+																[[]]
+																distributionList)
+
+									-- Output :: [[(k,[v])]]
+
+									where distributionList = distributionProcess 100 ls
+-- -}
+
+--mapReduce fMap fRed ls = 
+	-- 	distributionProcess 100 ls -> [[a]]
+	-- 	For l in [[a]]:
+	--		mapper fMap l -> [(k,[v])]
+	--		resultado:[[]]
+	--				// Tengo [[(k,[v])]] . Un [(k, [v])] por cada proceso
+	
+	--		combiner [[(k,[v])]] -> [(k,[v])]
+
+	--	For lProc in [(k,[v])]
+	--		reducer fRed lProc -> [b]
+	--		resultado:[[]]
 
 -- Ejercicio 11
 visitasPorMonumento :: [String] -> Dict String Int
