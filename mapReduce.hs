@@ -8,9 +8,8 @@ type Dict k v = [(k,v)]
 
 -- Ejercicio 1
 belongs :: Eq k => k -> Dict k v -> Bool
-belongs m xs = foldr 	(\x y -> (m == (fst x)) || y)
+belongs m = foldr 	(\x y -> (m == (fst x)) || y)
 						False
-						xs
 
 
 (?) :: Eq k => Dict k v -> k -> Bool
@@ -71,10 +70,15 @@ distributionProcess i = foldr 	(\m ns -> tail(ns) ++ [m:head(ns)])
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
+<<<<<<< HEAD
+mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
+--mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam"),("Homero", "Rumania")]
+=======
 mapperProcess xs ys = groupByKey (foldr 	(\x y -> (xs x)++y)
 											[]
 											ys)
 --mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
+>>>>>>> FETCH_HEAD
 
 
 pruebaMapper :: (String,String) -> [(String,Char)]
@@ -87,9 +91,8 @@ combinerProcess xss = order (foldr	(\x y -> unionWith (++) x y)
 									xss)
 
 order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
-order xs = foldr 	insertarOrdenado
+order = foldr	insertarOrdenado
 					[]
-					xs
 
 insertarOrdenado::(Eq k, Ord k) => (k, v) -> [(k, v)] -> [(k, v)]
 insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [greater | greater <- xs , (fst greater) > (fst x)]
