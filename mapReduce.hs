@@ -71,12 +71,7 @@ combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
 combinerProcess xss = order (foldr (\x y -> unionWith (++) x y) [] xss)
 
 order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
-order xs = foldr 	
-				--	(\x y -> order ([w | w <-y, fst(w) < fst(x)]) ++ [x] ++ order ([z | z <-y, fst(z) >= fst(x)]))
-					insertarOrdenado
-					[]
-					xs
-
+order xs = foldr (\x y -> insertarOrdenado x y) [] 	xs
 
 insertarOrdenado::(Eq k, Ord k) => (k, v) -> [(k, v)] -> [(k, v)]
 insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [greater | greater <- xs , (fst greater) > (fst x)]
