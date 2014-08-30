@@ -145,11 +145,21 @@ monumentosTop = undefined
 
 -- Ejercicio 13 
 monumentosPorPais :: [(Structure, Dict String String)] -> [(String, Int)]
-monumentosPorPais = undefined
+monumentosPorPais = mapReduce monumentMapper monumentReducer
+
+
+monumentMapper :: (Structure, Dict String String) -> [(String, Int)]
+monumentMapper entry =	if ( (fst entry) == Monument )
+						then [(get "country" (snd entry), 1)]
+						else []
+
+
+monumentReducer :: (String, [Int]) -> [(String, Int)]
+monumentReducer entry = [(fst entry, sum (snd entry))]
 
 
 -- ------------------------ Ejemplo de datos del ejercicio 13 ----------------------
-data Structure = Street | City | Monument deriving Show
+data Structure = Street | City | Monument deriving (Show, Eq)
 
 items :: [(Structure, Dict String String)]
 items = [
