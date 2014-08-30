@@ -60,7 +60,7 @@ distributionProcess i = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i []
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
 mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
---mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
+--mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam"),("Homero", "Rumania")]
 
 
 pruebaMapper :: (String,String) -> [(String,Char)]
