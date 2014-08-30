@@ -21,7 +21,7 @@ belongs m xs = foldr 	(\x y -> (m == (fst x)) || y)
 -- Ejercicio 2
 get :: Eq k => k -> Dict k v -> v
 get m xs = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y) 
-					snd (head xs))
+					(snd (head xs))
 					xs
 
 (!) :: Eq k => Dict k v -> k -> v
