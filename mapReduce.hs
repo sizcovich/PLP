@@ -8,7 +8,9 @@ type Dict k v = [(k,v)]
 
 -- Ejercicio 1
 belongs :: Eq k => k -> Dict k v -> Bool
-belongs m xs = foldr (\x y -> (m == (fst x)) || y) False xs
+belongs m xs = foldr 	(\x y -> (m == (fst x)) || y)
+						False
+						xs
 
 
 (?) :: Eq k => Dict k v -> k -> Bool
@@ -18,7 +20,9 @@ belongs m xs = foldr (\x y -> (m == (fst x)) || y) False xs
 
 -- Ejercicio 2
 get :: Eq k => k -> Dict k v -> v
-get m xs = foldr (\x y -> if (m == (fst x)) then (snd x) else y) (snd (head xs)) xs
+get m xs = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y) 
+					snd (head xs))
+					xs
 
 (!) :: Eq k => Dict k v -> k -> v
 (!) xs m = get m xs
@@ -28,20 +32,27 @@ get m xs = foldr (\x y -> if (m == (fst x)) then (snd x) else y) (snd (head xs))
 -- Ejercicio 3
 insertWith :: Eq k => (v -> v -> v) -> k -> v -> Dict k v -> Dict k v
 insertWith f m l xs = if ((?) xs m)
-                      then (foldr (\x rec -> if (m == fst x) then ((fst x, (f (snd x) l)):rec) else (x:rec)) [] xs) 
+                      then (foldr 	(\x rec -> 	if (m == fst x)
+                      							then ((fst x, (f (snd x) l)):rec)
+                      							else (x:rec))
+                      				[]
+                      				xs ) 
                       else (xs++[(m,l)])
 --Main> insertWith (++) 2 ['p'] (insertWith (++) 1 ['a','b'] (insertWith (++) 1 ['l'] []))
 --[(1,"lab"),(2,"p")]
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
-groupByKey = foldl (\y x -> (insertWith (++) (fst x) ([snd x]) y)) []
+groupByKey = foldl	(\y x -> (insertWith (++) (fst x) ([snd x]) y))
+					[]
 --Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
 --[("calle",["Jean␣Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
 
 -- Ejercicio 5
 unionWith :: Eq k => (v -> v -> v) -> Dict k v -> Dict k v -> Dict k v
-unionWith f xs ys = foldl (\y x -> (insertWith f (fst x) (snd x) y)) [] (xs++ys)
+unionWith f xs ys = foldl 	(\y x -> (insertWith f (fst x) (snd x) y))
+							[]
+							(xs++ys)
 --Main> unionWith (++) [("calle",[3]),("city",[2,1])] [("calle", [4]), ("altura", [1,3,2])]
 --[("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])]
 
@@ -54,12 +65,15 @@ type Reducer k v b = (k, [v]) -> [b]
 
 -- Ejercicio 6
 distributionProcess :: Int -> [a] -> [[a]]
-distributionProcess i = foldr(\m ns -> tail(ns) ++ [m:head(ns)]) (replicate i [])
+distributionProcess i = foldr 	(\m ns -> tail(ns) ++ [m:head(ns)])
+								(replicate i [])
 
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
-mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
+mapperProcess xs ys = groupByKey (foldr 	(\x y -> (xs x)++y)
+											[]
+											ys)
 --mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
 
 
@@ -68,10 +82,14 @@ pruebaMapper (x,y) = [(y,'I')]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
-combinerProcess xss = order (foldr (\x y -> unionWith (++) x y) [] xss)
+combinerProcess xss = order (foldr	(\x y -> unionWith (++) x y)
+									[]
+									xss)
 
 order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
-order xs = foldr (\x y -> insertarOrdenado x y) [] 	xs
+order xs = foldr 	insertarOrdenado
+					[]
+					xs
 
 insertarOrdenado::(Eq k, Ord k) => (k, v) -> [(k, v)] -> [(k, v)]
 insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [greater | greater <- xs , (fst greater) > (fst x)]
