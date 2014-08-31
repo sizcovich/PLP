@@ -137,7 +137,10 @@ mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
 
 -- Ejercicio 11
 visitasPorMonumento :: [String] -> Dict String Int
-visitasPorMonumento = undefined
+visitasPorMonumento = mapReduce divisionMapper monumentReducer
+
+divisionMapper :: String -> Dict String Int
+divisionMapper x = [(x,1)]
 
 -- Ejercicio 12
 monumentosTop :: [String] -> [String]
