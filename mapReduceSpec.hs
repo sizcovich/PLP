@@ -14,19 +14,25 @@ main = hspec $ do
       belongs "k" []                              `shouldBe` False
       [("H", [1]), ("E", [2]), ("Y", [0])] ? "R"  `shouldBe` False
       [("V", [1]), ("O", [2]), ("S", [0])] ? "V"  `shouldBe` True
+      [] ? 1                                      `shouldBe` False
 
     it "devuelve el significado de una clave" $ do
       get "city" [("calle",[3]),("city",[2,1])] `shouldBe` [2,1]
       get "c" [("a", "b"),("c","l"),("m","r")]  `shouldBe` "l" 
+      [(1, "a"), (5,"z"), (12,"hi")] ! 12       `shouldBe` "hi"
 
     it "agrega una clave junto con un significado a un diccionario aplicando una funcion especifica" $ do
       insertWith (++) 2 ['p'] (insertWith (++) 1 ['a','b'] (insertWith (++) 1 ['l'] [])) `shouldBe` [(1,"lab"),(2,"p")]
+      insertWith (+) 3 2 []                                                              `shouldBe` [(3,2)]
+      insertWith (+) 2 4 (insertWith (+) 1 3 (insertWith (+) 1 2 []))                    `shouldBe` [(1,5), (2,4)]
 
-    it "agrupa los elementos de un diccionario por sus claves aplicando una funcion" $ do
+    it "agrupar los datos por clave, generando un diccionario que asocia a cada clave con la lista de todos sus valores" $ do
       groupByKey [("calle","Jean_Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")] `shouldBe` [("calle",["Jean_Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
+      groupByKey [("a",[3,2]), ("a", []),("b",[2,3,4]) ]                                         `shouldBe` [("a",[[3,2], []]),("b",[[2,3,4]])]
 
     it "une dos diccionarios por sus claves aplicando una funcion" $ do
-      unionWith (++) [("calle",[3]),("city",[2,1])] [("calle", [4]), ("altura", [1,3,2])] `shouldBe` [("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])] 
+      unionWith (++) [("calle",[3]),("city",[2,1])] [("city",[]), ("calle", [4]), ("altura", [1,3,2])] `shouldBe` [("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])] 
+      unionWith (+) [("a",3),("b",4)] [("b", 6), ("a", 7), ("c",10)]                      `shouldBe` [("a",10), ("b",10), ("c",10)]
 
   describe "Utilizando Map Reduce" $ do
     it "divide la carga de manera balanceada" $ do
