@@ -16,16 +16,16 @@ main = hspec $ do
       [("V", [1]), ("O", [2]), ("S", [0])] ? "V"  `shouldBe` True
 
     it "devuelve el significado de una clave" $ do
-      get [("calle",[3]),("city",[2,1])] ? "city" `shouldBe` [2,1]
-      get [("a", "b"),("c","l"),("m","r")] ? "c"  `shouldBe` "l" 
+      get "city" [("calle",[3]),("city",[2,1])] `shouldBe` [2,1]
+      get "c" [("a", "b"),("c","l"),("m","r")]  `shouldBe` "l" 
 
-    it "agrega una clave junto con un significado a un diccionario aplicando una funcion especifica"
+    it "agrega una clave junto con un significado a un diccionario aplicando una funcion especifica" $ do
       insertWith (++) 2 ['p'] (insertWith (++) 1 ['a','b'] (insertWith (++) 1 ['l'] [])) `shouldBe` [(1,"lab"),(2,"p")]
 
-    it "agrupa los elementos de un diccionario por sus claves aplicando una funcion"
+    it "agrupa los elementos de un diccionario por sus claves aplicando una funcion" $ do
       groupByKey [("calle","Jean_Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")] `shouldBe` [("calle",["Jean_Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
 
-    it "une dos diccionarios por sus claves aplicando una funcion"
+    it "une dos diccionarios por sus claves aplicando una funcion" $ do
       unionWith (++) [("calle",[3]),("city",[2,1])] [("calle", [4]), ("altura", [1,3,2])] `shouldBe` [("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])] 
 
   describe "Utilizando Map Reduce" $ do
@@ -35,7 +35,7 @@ main = hspec $ do
       distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7],[1,6]]
       distributionProcess 5 [1 ,2 ,3]  `shouldMatchList` [[],[],[3],[2],[1]]
 
-    it "aplica Map a una lista aplicando alguna funcion"
+    it "aplica Map a una lista aplicando alguna funcion" $ do
       mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")] `shouldMatchList` [("Berlin","I"),("Amsterdam","II")]
     
     it "combina los resultados de cada maquina" $ do
