@@ -32,29 +32,38 @@ main = hspec $ do
 
     it "une dos diccionarios por sus claves aplicando una funcion" $ do
       unionWith (++) [("calle",[3]),("city",[2,1])] [("city",[]), ("calle", [4]), ("altura", [1,3,2])] `shouldBe` [("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])] 
-      unionWith (+) [("a",3),("b",4)] [("b", 6), ("a", 7), ("c",10)]                      `shouldBe` [("a",10), ("b",10), ("c",10)]
+      unionWith (+) [("a",3),("b",4)] [("b", 6), ("a", 7), ("c",10)]                                   `shouldBe` [("a",10), ("b",10), ("c",10)]
 
   describe "Utilizando Map Reduce" $ do
     it "divide la carga de manera balanceada" $ do
       distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7,12],[1,6,11]]
-      distributionProcess 2 ["a","b","c","d","e"]  `shouldMatchList` [["b","d"],["a","c","e"]]
-      distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]  `shouldMatchList` [[5,10],[4,9],[3,8],[2,7],[1,6]]
-      distributionProcess 5 [1 ,2 ,3]  `shouldMatchList` [[],[],[3],[2],[1]]
+      distributionProcess 2 ["a","b","c","d","e"]                    `shouldMatchList` [["b","d"],["a","c","e"]]
+      distributionProcess 5 [1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10]          `shouldMatchList` [[5,10],[4,9],[3,8],[2,7],[1,6]]
+      distributionProcess 5 [1 ,2 ,3]                                `shouldMatchList` [[],[],[3],[2],[1]]
 
-    it "aplica Map a una lista aplicando alguna funcion" $ do
-      mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")] `shouldMatchList` [("Berlin","I"),("Amsterdam","II")]
+    it "aplica Map a los elementos de una lista y luego agrupa los resultados" $ do
+      mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]   `shouldMatchList` [("Berlin","I"),("Amsterdam","II")]
+      mapperProcess (pruebaMapper) [("Sabrina","Francia"),("Sebastian","Argentina"),("Martin","Brasil")] `shouldMatchList` [("Francia","I"),("Brasil","I"),("Argentina", "I")]
+      mapperProcess (pruebaMapper) []                                                                    `shouldMatchList` []
     
     it "combina los resultados de cada maquina" $ do
-      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I']),("Amsterdam", ['I','I'])]] `shouldBe` [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]
+      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I']),("Amsterdam", ['I','I'])]]        `shouldBe` [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]
       combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Buenos Aires",['I']),("San Pablo", ['I','I'])]] `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Buenos Aires","I"),("Cairo","I"),("San Pablo","II")]
-      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I','I','I'])]] `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Cairo","IIII")]
+      combinerProcess [[("Berlin",['I']),("Amsterdam", ['I']),("Cairo",['I'])], [("Cairo",['I','I','I'])],[]]                      `shouldBe` [("Amsterdam","I"),("Berlin","I"),("Cairo","IIII")]
+    
+    it "aplica reducer sobre cada elemento y aplana el resultado para unificar las soluciones" $ do
+      reducerProcess (reducerExample) [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]   `shouldBe` [("Amsterdam"),("Berlin"),("Cairo")]
+      reducerProcess (pruebaReducer) [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]  `shouldBe` [("Amsterdam", 3),("Berlin", 1),("Cairo", 2)]
 
+    it "framework completo" $ do
+      mapReduce (pruebaMapper) (pruebaReducer) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Cairo"), ("Pablo", "Cairo"),("Taihu","Amsterdam"),("Juan","Amsterdam")] `shouldBe` [("Amsterdam", 3),("Berlin", 1),("Cairo", 2)]
+
+  describe "Utilización" $ do
     it "visitas por monumento funciona en algún orden" $ do
       visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)]
       visitasPorMonumento [ "Torta Frita" ,"Sandwich" ,"Empanada" ,"Empanada","Empanada", "Sandwich", "Pizza"] `shouldMatchList` [("Empanada",3), ("Sandwich",2), ("Torta Frita",1), ("Pizza", 1)] 
       visitasPorMonumento [ "Juan","Juan","Juan","Juan","Juan", "Juan", "Juan"] `shouldMatchList` [("Juan",7)] 
 
-    --it "monumentosTop devuelve los más visitados en algún orden" $ do 
-    --  monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"] 
-    --  `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])
-
+  it "monumentosTop devuelve los más visitados en algún orden" $ do 
+      monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"] 
+      `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])

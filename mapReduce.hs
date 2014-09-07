@@ -102,10 +102,10 @@ reducerProcess red ls = 	concat (foldr	(\x rec -> (red x) : rec)
 reducerExample :: (k, v) -> [k]
 reducerExample par = [fst par]
 
-distributionExample = distributionProcess 2 [1,2,3,4,5,6,7,8] 
+pruebaReducer :: (k, [v]) -> [(k, Int)]
+pruebaReducer par = [(fst par, length (snd par))]
 
 -- Ejercicio 10 
--- {-
 mapReduce :: (Eq k, Ord k) => Mapper a k v -> Reducer k v b -> [a] -> [b]
 mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
 
@@ -120,20 +120,6 @@ mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
 									-- Output :: [[(k,[v])]]
 
 									where distributionList = distributionProcess 100 ls
--- -}
-
---mapReduce fMap fRed ls = 
-	-- 	distributionProcess 100 ls -> [[a]]
-	-- 	For l in [[a]]:
-	--		mapper fMap l -> [(k,[v])]
-	--		resultado:[[]]
-	--				// Tengo [[(k,[v])]] . Un [(k, [v])] por cada proceso
-	
-	--		combiner [[(k,[v])]] -> [(k,[v])]
-
-	--	For lProc in [(k,[v])]
-	--		reducer fRed lProc -> [b]
-	--		resultado:[[]]
 
 -- Ejercicio 11
 visitasPorMonumento :: [String] -> Dict String Int
@@ -144,7 +130,13 @@ divisionMapper x = [(x,1)]
 
 -- Ejercicio 12
 monumentosTop :: [String] -> [String]
-monumentosTop = undefined
+monumentosTop xs = mapReduce topMapper topReducer (visitasPorMonumento xs)
+
+topMapper :: (String, Int) -> [(Int, String)]
+topMapper (x,y) = [(-y,x)]
+
+topReducer :: (Int, [String]) -> [String]
+topReducer par = snd par
 
 -- Ejercicio 13 
 monumentosPorPais :: [(Structure, Dict String String)] -> [(String, Int)]
