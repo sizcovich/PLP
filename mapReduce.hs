@@ -108,12 +108,21 @@ reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
 reducerProcess red ls = concat (foldr	(\x rec -> (red x) : rec)
 											[[]]
 											ls)
+											
+-- Dada una función Reducer y un diccionario, se recorre el diccionario de derecha a izquierda, y se aplica la función
+-- Reducer a cada elemento, quedando una lista de listas de tipo b. Finalmente se aplica concat para aplanar todas las listas
+-- para obtener 1 lista sólamente, de tipo b.
 
 reducerExample :: (k, v) -> [k]
 reducerExample par = [fst par]
 
+-- Ejemplo de función Reducer, que dado un par (k,v), devuelve una lista que contiene 1 elemento, siendo ese único
+-- elemento, el primer elemento del par.
+
 pruebaReducer :: (k, [v]) -> [(k, Int)]
 pruebaReducer par = [(fst par, length (snd par))]
+
+-- Otro ejemplo de función Reducer. Este ejemplo sirve para la resolución del ejemplo del enunciado
 
 -- Ejercicio 10 
 mapReduce :: (Eq k, Ord k) => Mapper a k v -> Reducer k v b -> [a] -> [b]
@@ -130,6 +139,13 @@ mapReduce fMap fRed ls = reducerProcess fRed combinedList
 									-- Output :: [[(k,[v])]]
 
 									where distributionList = distributionProcess 100 ls
+									
+-- Función que junta todos los pasos previamente explicados.
+--	Dada una función Mapper, una funcion Reducer y una lista, realiza:
+--		- Distribuye entre 100 procesos la lista
+--		- Cada proceso, a su lista asignada, aplica la función Mapper a cada elemento de esa lista
+--		- Luego, se combinan los resultados de cada proceso por medio del combinerProcess
+--		- Finalmente se aplica la función de reducción sobre cada elemento obtenido tras la operación de combiner
 
 -- Ejercicio 11
 visitasPorMonumento :: Ord a => [a] -> Dict a Int
@@ -173,6 +189,22 @@ monumentMapper entry =	if ( (fst entry) == Monument )
 
 monumentReducer :: (a, [Int]) -> [(a, Int)]
 monumentReducer entry = [(fst entry, sum (snd entry))]
+
+-- monumentosPorPais toma una lista de pares de tipo (Structure, Dict String String) y devuelve una lista
+-- de tipo (String, Int), donde el primer elemento corresponde al nombre de un país, y el segundo elemento a la cantidad
+-- de monumentos en ese país
+-- La función Mapper (monumentMapper), toma un par de tipo (Structure, Dict String String), y devuelve una lista, siendo
+--		En caso que la estructura no sea un Monument, se devuelva una lista vacia.
+--		En caso que la estrucutra sea un Monument, se devuelve un par, en donde el primer elemento es el nombre del país,
+--			y el segundo elemento es un 1 (que es la cantidad de monumentos en ese país dado ese par inicial).
+-- La función Reducer (monumentReducer) toma un Dict String [Int]
+--		Sabemos que cada clave de ese Diccinario es un país.
+--		También sabemos que a cada clave le corresponde una lista de Int. La cantidad de elementos de esa lista es la cantidad de
+--			pares (Structure, Dict String String) que eran Monument y correspondian a ese país. Dicho de otra forma, la cantidad de
+--			elementos es la cantidad de monumentos de ese país
+--		También se sabe que cada elemento de esa lista de Int, es un 1. Con lo cual la cantidad total de monumentos de ese país
+--			puede ser tanto, la suma de los elementos de esa lista, como la cantidad de elementos de esa lista. En este caso se
+--			decidió resolverlo usando la suma de los elementos de la lista.
 
 
 -- ------------------------ Ejemplo de datos del ejercicio 13 ----------------------
