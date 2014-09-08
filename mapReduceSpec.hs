@@ -53,17 +53,19 @@ main = hspec $ do
     
     it "aplica reducer sobre cada elemento y aplana el resultado para unificar las soluciones" $ do
       reducerProcess (reducerExample) [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]   `shouldBe` [("Amsterdam"),("Berlin"),("Cairo")]
-      reducerProcess (pruebaReducer) [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]  `shouldBe` [("Amsterdam", 3),("Berlin", 1),("Cairo", 2)]
+      reducerProcess (pruebaReducer) [("Amsterdam","III"),("Berlin","I"),("Cairo","II")]    `shouldBe` [("Amsterdam", 3),("Berlin", 1),("Cairo", 2)]
 
     it "framework completo" $ do
       mapReduce (pruebaMapper) (pruebaReducer) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Cairo"), ("Pablo", "Cairo"),("Taihu","Amsterdam"),("Juan","Amsterdam")] `shouldBe` [("Amsterdam", 3),("Berlin", 1),("Cairo", 2)]
 
   describe "Utilización" $ do
     it "visitas por monumento funciona en algún orden" $ do
-      visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"] `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)]
+      visitasPorMonumento [ "m1" ,"m2" ,"m3" ,"m2","m1", "m3", "m3"]                                           `shouldMatchList` [("m3",3), ("m1",2), ("m2",2)]
       visitasPorMonumento [ "Torta Frita" ,"Sandwich" ,"Empanada" ,"Empanada","Empanada", "Sandwich", "Pizza"] `shouldMatchList` [("Empanada",3), ("Sandwich",2), ("Torta Frita",1), ("Pizza", 1)] 
-      visitasPorMonumento [ "Juan","Juan","Juan","Juan","Juan", "Juan", "Juan"] `shouldMatchList` [("Juan",7)] 
+      visitasPorMonumento [ "Juan","Juan","Juan","Juan","Juan", "Juan", "Juan"]                                `shouldMatchList` [("Juan",7)] 
 
-  it "monumentosTop devuelve los más visitados en algún orden" $ do 
-      monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"] 
-      `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])
+    it "monumentosTop devuelve los más visitados en algún orden" $ do 
+      monumentosTop [ "m1", "m0", "m0", "m0", "m2", "m2", "m3"]                                          `shouldSatisfy` (\res -> res == ["m0", "m2", "m3", "m1"] || res == ["m0", "m2", "m1", "m3"])
+      monumentosTop [ "Juan","Juan","Juan","Juan","Juan", "Juan", "Juan"]                                `shouldMatchList` ["Juan"] 
+      monumentosTop [ "Torta Frita" ,"Sandwich" ,"Empanada" ,"Empanada","Empanada", "Sandwich", "Pizza"] `shouldSatisfy` (\res -> res == ["Empanada", "Sandwich", "pizza", "Torta Frita"] || res == ["Empanada", "Sandwich", "Torta Frita", "Pizza"])  
+      
