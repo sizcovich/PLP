@@ -69,3 +69,11 @@ main = hspec $ do
       monumentosTop [ "Juan","Juan","Juan","Juan","Juan", "Juan", "Juan"]                                `shouldMatchList` ["Juan"] 
       monumentosTop [ "Torta Frita" ,"Sandwich" ,"Empanada" ,"Empanada","Empanada", "Sandwich", "Pizza"] `shouldSatisfy` (\res -> res == ["Empanada", "Sandwich", "pizza", "Torta Frita"] || res == ["Empanada", "Sandwich", "Torta Frita", "Pizza"])  
       
+    it "monumentosPorPais devuelve la cantidad de monumentos por cada país, en algún orden" $ do
+	  monumentosPorPais [] `shouldMatchList` []
+	  monumentosPorPais [(City,[("country","Argentina")]), (Street,[]), (Street,[("country","Argentina")])] `shouldMatchList` []
+	  monumentosPorPais [(City,[("country","Argentina")]), (Street,[]), (Street,[("country","Argentina")]), (Monument,[("country", "Siberia")])] `shouldMatchList` [("Siberia", 1)]
+	  monumentosPorPais [(Monument,[("country", "Siberia")]), (Monument,[("country","Argentina")])] `shouldSatisfy` ( \res -> res == [("Siberia",1),("Argentina",1)] || res == [("Argentina",1),("Siberia",1)] )
+	  monumentosPorPais [(Monument,[("country", "Siberia")]), (Monument,[("country","Argentina")]), (Monument,[("country","Argentina")]), (Monument,[("country","Argentina")]), (Monument,[("country", "Siberia")])] `shouldSatisfy` ( \res -> res == [("Siberia",2),("Argentina",3)] || res == [("Argentina",3),("Siberia",2)] )
+	  
+      
