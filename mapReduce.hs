@@ -71,6 +71,9 @@ type Reducer k v b = (k, [v]) -> [b]
 distributionProcess :: Int -> [a] -> [[a]]
 distributionProcess i = foldr (\m ns -> tail(ns) ++ [m:head(ns)])
 								(replicate i [])
+-- Dado un número m y un arreglo xs, coloca el primer elemento de xs en el primer arreglo de la salida 
+-- (la cual comienza siendo m arreglos vacíos). Finalmente, coloca el primer arreglo de la salida al final 
+-- de la misma.
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
@@ -88,12 +91,17 @@ pruebaMapper (x,y) = [(y,'I')]
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
 combinerProcess xss = order (foldr(\x y -> unionWith (++) x y) [] xss)
+-- Dado un arreglo de diccionarios, los concatena mediante la función unionWith. Posteriormente, los
+-- ordena de forma creciente (según su clave) mediante la función order.
 
 order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
 order = foldr	insertarOrdenado []
+-- Dado un arreglo, lo recorre de derecha a izquierda para ordenar cada uno de sus elementos mediante 
+-- la función insertarOrdenando.
 
 insertarOrdenado::(Eq k, Ord k) => (k, v) -> [(k, v)] -> [(k, v)]
 insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [greater | greater <- xs , (fst greater) > (fst x)]
+-- Dada una tupla t y un arreglo ordenado xs, coloca a t en xs de manera tal de que éste siga ordenado. 
 
 -- Ejercicio 9
 reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
@@ -145,6 +153,12 @@ topMapper (x,y) = [(-y,x)]
 
 topReducer :: (Int, [a]) -> [a]
 topReducer par = snd par
+
+--Dado un arreglo de elementos, monumentosTop se encarga de computar visitasPorMonumento. Ésta función
+--genera tuplas (a,b) en donde b representa la cantidad de veces que aparece el elemento a en dicho
+--arreglo. Posteriormente, topMapper mappea cada tupla (a,b) a (-b, a) para que se ordenen de manera
+--creciente en la cantidad de apariciones. Por último, topReducer se encarga de tomar una tupla (b, [a]) 
+--y devolver su segunda componente.
 
 -- Ejercicio 13 
 monumentosPorPais :: [(Structure, Dict String String)] -> [(String, Int)]
