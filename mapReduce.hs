@@ -8,8 +8,7 @@ type Dict k v = [(k,v)]
 
 -- Ejercicio 1
 belongs :: Eq k => k -> Dict k v -> Bool
-belongs m = foldr 	(\x y -> (m == (fst x)) || y)
-						False
+belongs m = foldr (\x y -> (m == (fst x)) || y) False
 -- Dado un elemento m y un diccionario, se recorre a este último de derecha a izquierda y se compara
 -- a m con cada clave, uniendo cada comparación por un "OR". En el caso en el que coincida con algún
 -- elemento, devuelve True. Caso contrario, False.
@@ -36,11 +35,9 @@ get m xs = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y)
 -- Ejercicio 3
 insertWith :: Eq k => (v -> v -> v) -> k -> v -> Dict k v -> Dict k v
 insertWith f m l xs = if ((?) xs m)
-                      then (foldr 	(\x rec -> 	if (m == fst x)
+                      then (foldr (\x rec -> 	if (m == fst x)
                       							then ((fst x, (f (snd x) l)):rec)
-                      							else (x:rec))
-                      				[]
-                      				xs ) 
+                      							else (x:rec)) [] xs) 
                       else (xs++[(m,l)])
 -- Dada una función f, una clave m, un significado l y un diccionario, si la clave m pertenece a l
 -- ((?) xs m), entonces se la compara con cada elemento del diccionario y una vez que se la
@@ -49,8 +46,7 @@ insertWith f m l xs = if ((?) xs m)
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
-groupByKey = foldl	(\y x -> (insertWith (++) (fst x) ([snd x]) y))
-					[]
+groupByKey = foldl	(\y x -> (insertWith (++) (fst x) ([snd x]) y)) []
 -- Para cada elemento del arreglo ingresado, se llama a la función insertWith con la función
 -- concatenar, el primer elemento de la tupla, un arreglo conteniendo el segundo elemento y el resto
 -- de los elementos del arreglo. De este modo, se concatenan los significados de cada elemento si es
@@ -78,23 +74,23 @@ distributionProcess i = foldr (\m ns -> tail(ns) ++ [m:head(ns)])
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
-mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y)
-											[]
-											ys)
--- Dado un elemento de tipo Mapper a k v y un arreglo, toma cada elemento del Mapper
+mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y) [] ys)
+-- Dado un elemento de tipo Mapper a k v y un arreglo, le aplica Mapper a cada elemento obteniendo
+-- un resultado de tipo [(k,v)] y lo concatena con la salida generada (que comienza con un arreglo
+-- vacío). Por último, concatena los significados por su clave a través de groupByKey.
 
 pruebaMapper :: (String,String) -> [(String,Char)]
 pruebaMapper (x,y) = [(y,'I')]
+-- Función de prueba para el Mapper. Permite crear el ejemplo del enunciado. Se puede probar el
+-- ejemplo a través de mapperProcess (pruebaMapper)
+-- [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
-combinerProcess xss = order (foldr(\x y -> unionWith (++) x y)
-									[]
-									xss)
+combinerProcess xss = order (foldr(\x y -> unionWith (++) x y) [] xss)
 
 order::(Eq a, Ord a)=>[(a,b)]->[(a,b)]
-order = foldr	insertarOrdenado
-					[]
+order = foldr	insertarOrdenado []
 
 insertarOrdenado::(Eq k, Ord k) => (k, v) -> [(k, v)] -> [(k, v)]
 insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [greater | greater <- xs , (fst greater) > (fst x)]
@@ -104,8 +100,6 @@ reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
 reducerProcess red ls = concat (foldr	(\x rec -> (red x) : rec)
 											[[]]
 											ls)
-
-
 
 reducerExample :: (k, v) -> [k]
 reducerExample par = [fst par]
