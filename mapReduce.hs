@@ -10,23 +10,28 @@ type Dict k v = [(k,v)]
 belongs :: Eq k => k -> Dict k v -> Bool
 belongs m = foldr 	(\x y -> (m == (fst x)) || y)
 						False
-
+-- Dado un elemento m y un diccionario, se recorre a este último de derecha a izquierda y se compara
+-- a m con cada clave, uniendo cada comparación por un "OR". En el caso en el que coincida con algún
+-- elemento, devuelve True. Caso contrario, False.
 
 (?) :: Eq k => Dict k v -> k -> Bool
 (?) xs m = belongs m xs
---Main> [("calle",[3]),("city",[2,1])] ? "city" 
---True
+-- Evalúa la función belongs con un diccionario y una clave.
 
 -- Ejercicio 2
 get :: Eq k => k -> Dict k v -> v
 get m xs = foldr 	(\x y -> if (m == (fst x)) then (snd x) else y) 
 					(snd (head xs))
 					xs
+-- Dado un elemento m y un diccionario, lo recorre de derecha a izquierda comparando cada clave con
+-- m. Una vez que encuentra la clave m, devuelve el significado de la misma. Dado que una vez que se
+-- encuentra la clave correspondiente se devuelve directamente el significado sin que se lo combine
+-- con resultados parciales, no afecta en el resultado el valor de inicio, que en nuestro caso es
+-- (snd (head xs)).
 
 (!) :: Eq k => Dict k v -> k -> v
 (!) xs m = get m xs
---Main> [("calle",[3]),("city",[2,1])] ! "city" 
---[2,1]
+-- Evalúa la función get con un diccionario y una clave.
 
 -- Ejercicio 3
 insertWith :: Eq k => (v -> v -> v) -> k -> v -> Dict k v -> Dict k v
@@ -37,24 +42,28 @@ insertWith f m l xs = if ((?) xs m)
                       				[]
                       				xs ) 
                       else (xs++[(m,l)])
---Main> insertWith (++) 2 ['p'] (insertWith (++) 1 ['a','b'] (insertWith (++) 1 ['l'] []))
---[(1,"lab"),(2,"p")]
+-- Dada una función f, una clave m, un significado l y un diccionario, si la clave m pertenece a l
+-- ((?) xs m), entonces se la compara con cada elemento del diccionario y una vez que se la
+-- encuentra la agrega al diccionario combinando su significado con l a través de la función f. En
+-- el caso en el que no esté, se concatena la clave con el significado l al diccionario.
 
 -- Ejercicio 4
 groupByKey :: Eq k => [(k,v)] -> Dict k [v]
 groupByKey = foldl	(\y x -> (insertWith (++) (fst x) ([snd x]) y))
 					[]
---Main> groupByKey [("calle","Jean␣Jaures"),("ciudad","Brujas"), ("ciudad","Kyoto"),("calle","7")]
---[("calle",["Jean␣Jaures","7"]),("ciudad",["Brujas","Kyoto"])]
+-- Para cada elemento del arreglo ingresado, se llama a la función insertWith con la función
+-- concatenar, el primer elemento de la tupla, un arreglo conteniendo el segundo elemento y el resto
+-- de los elementos del arreglo. De este modo, se concatenan los significados de cada elemento si es
+-- que se encuentran repetidos y sino, son agregados normalmente a la salida de la función.
 
 -- Ejercicio 5
 unionWith :: Eq k => (v -> v -> v) -> Dict k v -> Dict k v -> Dict k v
-unionWith f xs ys = foldl 	(\y x -> (insertWith f (fst x) (snd x) y))
+unionWith f xs ys = foldl (\y x -> (insertWith f (fst x) (snd x) y))
 							[]
 							(xs++ys)
---Main> unionWith (++) [("calle",[3]),("city",[2,1])] [("calle", [4]), ("altura", [1,3,2])]
---[("calle",[3,4]),("city",[2,1]),("altura",[1,3,2])]
-
+-- Dada la concatenación de dos diccionarios (xs++ys), toma cada elemento del primero y aplica insertWith de
+-- una función f con la clave y el significado de cada uno de ellos. De este modo, se elimina la
+-- posibilidad de tener claves repetidas en dicha concatenación.
 
 -- ------------------------------Sección 2--------------MapReduce---------------------------
 
@@ -64,23 +73,22 @@ type Reducer k v b = (k, [v]) -> [b]
 
 -- Ejercicio 6
 distributionProcess :: Int -> [a] -> [[a]]
-distributionProcess i = foldr 	(\m ns -> tail(ns) ++ [m:head(ns)])
+distributionProcess i = foldr (\m ns -> tail(ns) ++ [m:head(ns)])
 								(replicate i [])
-
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
-mapperProcess xs ys = groupByKey (foldr 	(\x y -> (xs x)++y)
+mapperProcess xs ys = groupByKey (foldr (\x y -> (xs x)++y)
 											[]
 											ys)
---mapperProcess (pruebaMapper) [("Pablo","Berlin"),("Gabriela","Amsterdam"),("Taihu","Amsterdam")]
+-- Dado un elemento de tipo Mapper a k v y un arreglo, toma cada elemento del Mapper
 
 pruebaMapper :: (String,String) -> [(String,Char)]
 pruebaMapper (x,y) = [(y,'I')]
 
 -- Ejercicio 8
 combinerProcess :: (Eq k, Ord k) => [[(k, [v])]] -> [(k,[v])]
-combinerProcess xss = order (foldr	(\x y -> unionWith (++) x y)
+combinerProcess xss = order (foldr(\x y -> unionWith (++) x y)
 									[]
 									xss)
 
@@ -93,7 +101,7 @@ insertarOrdenado x xs = [less | less <- xs , (fst less) <= (fst x)] ++ [x] ++ [g
 
 -- Ejercicio 9
 reducerProcess :: Reducer k v b -> [(k, [v])] -> [b]
-reducerProcess red ls = 	concat (foldr	(\x rec -> (red x) : rec)
+reducerProcess red ls = concat (foldr	(\x rec -> (red x) : rec)
 											[[]]
 											ls)
 
@@ -107,7 +115,7 @@ pruebaReducer par = [(fst par, length (snd par))]
 
 -- Ejercicio 10 
 mapReduce :: (Eq k, Ord k) => Mapper a k v -> Reducer k v b -> [a] -> [b]
-mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
+mapReduce fMap fRed ls = reducerProcess fRed combinedList
 
 							where combinedList = combinerProcess mappedProcess
 								-- mappedProcess :: [[(k,[v])]]		(Input)
@@ -122,20 +130,26 @@ mapReduce fMap fRed ls = 	reducerProcess fRed combinedList
 									where distributionList = distributionProcess 100 ls
 
 -- Ejercicio 11
-visitasPorMonumento :: [String] -> Dict String Int
+visitasPorMonumento :: Ord a => [a] -> Dict a Int
 visitasPorMonumento = mapReduce divisionMapper monumentReducer
 
-divisionMapper :: String -> Dict String Int
+divisionMapper :: a -> Dict a Int
 divisionMapper x = [(x,1)]
 
+-- visitasPorMonumento aplica mapReduce a la función divisionMapper y monumentReducer.
+-- divisionMapper se encarga de, dado un elemento x, crear un arreglo de tuplas donde el primer
+-- elemento de la tupla agregada es x y el segundo el valor 1. Por otro lado, monumentReducer crea,
+-- dada una tupla de tipo (a, [b]), un arreglo de tuplas de tipo (a, b) donde el segundo elemento
+-- consiste en la sumatoria del arreglo de la tupla ingresada.
+
 -- Ejercicio 12
-monumentosTop :: [String] -> [String]
+monumentosTop :: Ord a => [a] -> [a]
 monumentosTop xs = mapReduce topMapper topReducer (visitasPorMonumento xs)
 
-topMapper :: (String, Int) -> [(Int, String)]
+topMapper :: (a, Int) -> [(Int, a)]
 topMapper (x,y) = [(-y,x)]
 
-topReducer :: (Int, [String]) -> [String]
+topReducer :: (Int, [a]) -> [a]
 topReducer par = snd par
 
 -- Ejercicio 13 
@@ -149,7 +163,7 @@ monumentMapper entry =	if ( (fst entry) == Monument )
 						else []
 
 
-monumentReducer :: (String, [Int]) -> [(String, Int)]
+monumentReducer :: (a, [Int]) -> [(a, Int)]
 monumentReducer entry = [(fst entry, sum (snd entry))]
 
 
