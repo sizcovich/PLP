@@ -71,9 +71,10 @@ type Reducer k v b = (k, [v]) -> [b]
 distributionProcess :: Int -> [a] -> [[a]]
 distributionProcess i = foldr (\m ns -> tail(ns) ++ [m:head(ns)])
 								(replicate i [])
--- Dado un número m y un arreglo xs, coloca el primer elemento de xs en el primer arreglo de la salida 
--- (la cual comienza siendo m arreglos vacíos). Finalmente, coloca el primer arreglo de la salida al final 
--- de la misma.
+--Dado un número m y un arreglo xs, distribuye los elementos de xs en m arreglos de manera 
+--balanceada. Para ésto, recorre el arreglo de derecha a izquierda y en cada iteración coloca 
+--el primer elemento de xs en el primer arreglo de la salida (la cual comienza siendo m arreglos vacíos), luego  
+--coloca dicho arreglo al final de la salida y vuelve a iterar.
 
 -- Ejercicio 7
 mapperProcess :: Eq k => Mapper a k v -> [a] -> [(k,[v])]
