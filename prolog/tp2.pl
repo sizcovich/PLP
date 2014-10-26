@@ -27,6 +27,12 @@ finalesDe(a(_, F, _), F).
 
 transicionesDe(a(_, _, T), T).
 
+transicionDesde((D,_,_),D).
+
+transicionPor((_,P,_),P).
+
+transicionHacia((_,_,H),H).
+
 %Auxiliar dada en clase
 %desde(+X, -Y).
 desde(X, X).
@@ -36,7 +42,8 @@ desde(X, Y):-desde(X, Z),  Y is Z + 1.
 %%Predicados pedidos.
 
 % 1) %esDeterministico(+Automata)
-esDeterministico(_).
+esDeterministico(a(I,F,[])).
+esDeterministico(a(I,F, [X|L])) :- not(member(X,L)), esDeterministico(a(I,F,L)), !.
 
 
 % 2) estados(+Automata, -Estados)
