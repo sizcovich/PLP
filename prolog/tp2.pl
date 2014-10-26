@@ -43,7 +43,7 @@ desde(X, Y):-desde(X, Z),  Y is Z + 1.
 
 % 1) %esDeterministico(+Automata)
 esDeterministico(a(I,F,[])).
-esDeterministico(a(I,F, [X|L])) :- not(member(X,L)), esDeterministico(a(I,F,L)), !.
+esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not(member((D,P,_),L)), esDeterministico(a(I,F,L)), !.
 
 
 % 2) estados(+Automata, -Estados)
