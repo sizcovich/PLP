@@ -42,13 +42,27 @@ desde(X, Y):-desde(X, Z),  Y is Z + 1.
 %%Predicados pedidos.
 
 % 1) %esDeterministico(+Automata)
-esDeterministico(a(I,F,[])).
-esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not(member((D,P,_),L)), esDeterministico(a(I,F,L)), !.
+esDeterministico(a(_,_,[])).
+esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not(member((D,P,_),L)),
+								   esDeterministico(a(I,F,L)), !.
 
+% 2) 
+%concatenar (?Lista1,?Lista2,?Lista3)
+concatenar([X|Xs], L2, [Y|Ys]):- X=Y, concatenar(Xs, L2, Ys).
+concatenar([], L2, L2).
 
-% 2) estados(+Automata, -Estados)
-estados(_, _).
+%estadosDeLasTransiciones(+Transiciones, +Estados)
+estadosDeLasTransiciones([],[]).
+estadosDeLasTransiciones([X|Ls],L):- estadosDeLasTransiciones(Ls,M), transicionDesde(X,D), transicionHacia(X,H),
+									 concatenar([D],[H],L1), concatenar(L1,M,L).
 
+%estadosSinRepetidos(+Automata, -Estado)
+estadosSinRepetidos(A,E):- inicialDe(A,I), finalesDe(A,F), transicionesDe(A,T), estadosDeLasTransiciones(T,T1), 
+			   concatenar([I],F,E1), concatenar(E1,T1,E2), setof(X, member(X,E2),E).
+
+%estados(+Automata, -Estados)
+estados(A, E):- var(E), estadosSinRepetidos(A,E), !. 
+estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=N.
 
 % 3)esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
 esCamino(_, _, _, _).
