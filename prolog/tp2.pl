@@ -44,28 +44,36 @@ desde(X, Y):-desde(X, Z),  Y is Z + 1.
 % 1) %esDeterministico(+Automata)
 esDeterministico(a(_,_,[])).
 esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not(member((D,P,_),L)),
-								   esDeterministico(a(I,F,L)), !.
+                                   esDeterministico(a(I,F,L)), !.
 
 % 2) 
 %concatenar (?Lista1,?Lista2,?Lista3)
-concatenar([X|Xs], L2, [Y|Ys]):- X=Y, concatenar(Xs, L2, Ys).
+concatenar([X|Xs], L2, [X|Ys]):- concatenar(Xs, L2, Ys).
 concatenar([], L2, L2).
 
 %estadosDeLasTransiciones(+Transiciones, +Estados)
 estadosDeLasTransiciones([],[]).
 estadosDeLasTransiciones([X|Ls],L):- estadosDeLasTransiciones(Ls,M), transicionDesde(X,D), transicionHacia(X,H),
-									 concatenar([D],[H],L1), concatenar(L1,M,L).
+                                     concatenar([D],[H],L1), concatenar(L1,M,L).
 
 %estadosSinRepetidos(+Automata, -Estado)
 estadosSinRepetidos(A,E):- inicialDe(A,I), finalesDe(A,F), transicionesDe(A,T), estadosDeLasTransiciones(T,T1), 
-			   concatenar([I],F,E1), concatenar(E1,T1,E2), setof(X, member(X,E2),E).
+                           concatenar([I],F,E1), concatenar(E1,T1,E2), setof(X, member(X,E2),E).
 
 %estados(+Automata, -Estados)
 estados(A, E):- var(E), estadosSinRepetidos(A,E), !. 
 estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=N.
 
-% 3)esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
-esCamino(_, _, _, _).
+% 3)
+%hayCamino(+Automata, +EstadoInicial, +EstadoFinal)
+hayCamino(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,T).
+
+%esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
+esCamino(_, _, _, []):- false.
+esCamino(A, X, X, [X]):- estados(A,L), member(X,L), !.
+esCamino(A, I, F, [X|[Y|[]]]):- hayCamino(A,X,Y), I=X, F=Y, !.
+esCamino(A, I, F, [X|[Y|Ls]]):- Ls\=[], I=X, last(Ls,F), hayCamino(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
+
 
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
 % Responder aquí.
