@@ -70,7 +70,7 @@ hayCamino(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,
 
 %esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
 esCamino(_, _, _, []):- false.
-esCamino(A, X, X, [X]):- hayCamino(A,X,X), !.
+esCamino(A, X, X, [X]):- estados(A,E), member(X,E), !.
 esCamino(A, X, Y, [X|[Y|[]]]):- hayCamino(A,X,Y), !.
 esCamino(A, X, F, [X|[Y|Ls]]):- Ls\=[], last(Ls,F), hayCamino(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
 
