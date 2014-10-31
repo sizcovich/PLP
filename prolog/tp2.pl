@@ -78,8 +78,22 @@ esCamino(A, X, F, [X|[Y|Ls]]):- Ls\=[], last(Ls,F), hayCamino(A,X,Y), esCamino(A
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
 % Responder aquí.
 
-% 5) caminoDeLongitud(+Automata, +N, -Camino, -Etiquetas, ?S1, ?S2)
-caminoDeLongitud(_, _, _, _, _, _).
+% 5) 
+%crearCaminos(+A, +N, ?EstadoInicial, ?EstadoFinal, -Camino)
+crearCaminos(A,1,_,S2,[S2]):- estados(A,E), member(S2,E).
+crearCaminos(A,N,S1,S2,C):- N\=1, estados(A,E), member(S1,E), Nmenos1 is N-1, 
+                          crearCaminos(A,Nmenos1,_,S2,C1), append([S1],C1,C).
+
+%etiquetasDeUnCamino(+A, +Camino, -Etiquetas)
+etiquetasDeUnCamino(_,[],[]).
+etiquetasDeUnCamino(A,[X],[E]):- transicionesDe(A,T), Transicion = (X,E,X), member(Transicion,T).
+etiquetasDeUnCamino(A,[X|[Y|[]]],[E]):- transicionesDe(A,T), Transicion = (X,E,Y), member(Transicion,T).
+etiquetasDeUnCamino(A,[X|[Y|Ls]],LEtiquetas):- Ls\=[], transicionesDe(A,T), Transicion = (X,E,Y), member(Transicion,T),
+                                               etiquetasDeUnCamino(A,[Y|Ls],L1), append([E],L1,LEtiquetas).
+
+%caminoDeLongitud(+Automata, +N, -Camino, -Etiquetas, ?S1, ?S2)
+caminoDeLongitud(A, N, C, E, S1, S2):- crearCaminos(A,N,S1,S2,C), esCamino(A,S1,S2,C), 
+                                       etiquetasDeUnCamino(A,C,E).
 
 % 6) alcanzable(+Automata, +Estado)
 alcanzable(_, _).
