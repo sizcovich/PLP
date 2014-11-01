@@ -11,6 +11,7 @@ ejemplo(8, a(s1, [sf], [(s1, a, s2), (s2, a, s3), (s2, b, s3), (s3, a, s1), (s3,
 ejemplo(9, a(s1, [s1], [(s1, a, s2), (s2, b, s1)])).
 ejemplo(10, a(s1, [s10, s11], 
         [(s2, a, s3), (s4, a, s5), (s9, a, s10), (s5, d, s6), (s7, g, s8), (s15, g, s11), (s6, i, s7), (s13, l, s14), (s8, m, s9), (s12, o, s13), (s14, o, s15), (s1, p, s2), (s3, r, s4), (s2, r, s12), (s10, s, s11)])).
+ejemplo(11, a(s1, [s2,s3], [(s1,a,s2), (s2,b,s3)])).
 
 ejemploMalo(1, a(s1, [s2], [(s1, a, s1), (s1, b, s2), (s2, b, s2), (s2, a, s3)])). %s3 es un estado sin salida.
 ejemploMalo(2, a(s1, [sf], [(s1, a, s1), (sf, b, sf)])). %sf no es alcanzable.
@@ -71,8 +72,8 @@ hayCamino(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,
 %esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
 esCamino(_, _, _, []):- false.
 esCamino(A, X, X, [X]):- estados(A,E), member(X,E), !.
-esCamino(A, X, Y, [X|[Y|[]]]):- hayCamino(A,X,Y), !.
-esCamino(A, X, F, [X|[Y|Ls]]):- Ls\=[], last(Ls,F), hayCamino(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
+esCamino(A, X, F, [X|[Y|Ls]]):- hayCamino(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
+
 
 
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
