@@ -97,7 +97,7 @@ caminoDeLongitud(A, N, C, E, S1, S2):- crearCaminos(A,N,S1,S2,C), esCamino(A,S1,
                                        etiquetasDeUnCamino(A,C,E).
 
 % 6) alcanzable(+Automata, +Estado)
-alcanzable(_, _).
+alcanzable(A,E) :- inicialDe(A,I), hayCamino(A,I,E).
 
 % 7) automataValido(+Automata)
 automataValido(_).
