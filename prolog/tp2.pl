@@ -61,7 +61,7 @@ estadosDeLasTransiciones([X|Ls],L):- estadosDeLasTransiciones(Ls,M), transicionD
 estadosSinRepetidos(A,E):- inicialDe(A,I), finalesDe(A,F), transicionesDe(A,T), estadosDeLasTransiciones(T,T1), 
                            concatenar([I],F,E1), concatenar(E1,T1,E2), setof(X, member(X,E2),E).
 
-%estados(+Automata, -Estados)
+%estados(+Automata, ?Estados)
 estados(A, E):- var(E), estadosSinRepetidos(A,E), !. 
 estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=N.
 
