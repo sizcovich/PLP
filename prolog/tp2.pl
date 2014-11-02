@@ -117,8 +117,13 @@ reconoce(A, P) :- nonvar(P), ground(P), length(P,Len), CantEstados is Len+1, ini
 reconoce(A, P) :- nonvar(P), not(ground(P)), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales).
 reconoce(A, P) :- var(P), desde(1,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, E, Init, Fin), member(Fin, Finales), P=E.
 
-% 10) PalabraMásCorta(+Automata, ?Palabra)
-palabraMasCorta(_, _).
+% 10) 
+% minimaLongitudAceptada(+A,-L)
+minimaLongitudAceptada(A, L) :- inicialDe(A,Init), finalesDe(A,Finales), desde(1,N), caminoDeLongitud(A, N, _, _, Init, Fin), member(Fin,Finales), !, L=N.
+
+%PalabraMásCorta(+Automata, ?Palabra)
+palabraMasCorta(A, P) :- nonvar(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), P=E, member(Fin, Finales),!.
+palabraMasCorta(A, P) :- var(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), P=E, member(Fin, Finales).
 
 %-----------------
 %----- Tests -----
