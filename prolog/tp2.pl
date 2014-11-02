@@ -78,6 +78,10 @@ esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
 
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
 % Responder aquí.
+%	Respuesta: El predicado esCamino, de la manera en que fue definido, no es reversible con respecto a Camino
+%		Cuando el parametro de "camino" queda sin instanciar, y el automata A contiene ciclos, el predicado se cuelga. Ejemplo:
+%			ejemplo(4,A), esCamino(A, s1, s3, C).
+%		En cambio, cuando el automata A no tiene ciclos, no se cuelga, y el predicado sería reversible con respecto a Camino en ese caso
 
 % 5) 
 %crearCaminos(+A, +N, ?EstadoInicial, ?EstadoFinal, -Camino)
@@ -109,7 +113,9 @@ automataValido(_).
 hayCiclo(_).
 
 % 9) reconoce(+Automata, ?Palabra)
-reconoce(_, _).
+reconoce(A, P) :- nonvar(P), ground(P), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales), !.
+reconoce(A, P) :- nonvar(P), not(ground(P)), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales).
+reconoce(A, P) :- var(P), desde(1,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, E, Init, Fin), member(Fin, Finales), P=E.
 
 % 10) PalabraMásCorta(+Automata, ?Palabra)
 palabraMasCorta(_, _).
