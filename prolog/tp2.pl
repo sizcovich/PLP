@@ -66,13 +66,13 @@ estados(A, E):- var(E), estadosSinRepetidos(A,E), !.
 estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=N.
 
 % 3)
-%hayCamino(+Automata, +EstadoInicial, +EstadoFinal)
-hayCamino(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,T).
+%hayTransicion(+Automata, +EstadoInicial, +EstadoFinal)
+hayTransicion(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,T).
 
 %esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
 esCamino(_, _, _, []):- false.
 esCamino(A, X, X, [X]):- estados(A,E), member(X,E), !.
-esCamino(A, X, F, [X|[Y|Ls]]):- hayCamino(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
+esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
 
 
 
@@ -97,7 +97,7 @@ caminoDeLongitud(A, N, C, E, S1, S2):- crearCaminos(A,N,S1,S2,C), esCamino(A,S1,
                                        etiquetasDeUnCamino(A,C,E).
 
 % 6) alcanzable(+Automata, +Estado)
-alcanzable(A,E) :- inicialDe(A,I), hayCamino(A,I,E).
+alcanzable(A,E) :- inicialDe(A,I), hayTransicion(A,I,E).
 
 % 7) automataValido(+Automata)
 automataValido(_).
