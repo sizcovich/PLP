@@ -51,20 +51,24 @@ esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not
 %concatenar (?Lista1,?Lista2,?Lista3)
 concatenar([X|Xs], L2, [X|Ys]):- concatenar(Xs, L2, Ys).
 concatenar([], L2, L2).
+%Lista3 es el resultado de concatenar Lista1 y Lista2.
 
-%estadosDeLasTransiciones(+Transiciones, +Estados)
+%estadosDeLasTransiciones(+Transiciones, ?Estados)
 estadosDeLasTransiciones([],[]).
 estadosDeLasTransiciones([X|Ls],L):- estadosDeLasTransiciones(Ls,M), transicionDesde(X,D), transicionHacia(X,H),
                                      concatenar([D],[H],L1), concatenar(L1,M,L).
+%Estados es la lista con todos los estados que pertenecen a las transiciones de la lista Transiciones. 
 
 %estadosSinRepetidos(+Automata, -Estado)
 estadosSinRepetidos(A,E):- inicialDe(A,I), finalesDe(A,F), transicionesDe(A,T), estadosDeLasTransiciones(T,T1), 
                            concatenar([I],F,E1), concatenar(E1,T1,E2), setof(X, member(X,E2),E).
+%Dado un Automata, genera una lista sin repetidos con todos sus estados.
 
 %estados(+Automata, ?Estados)
 estados(A, E):- var(E), estadosSinRepetidos(A,E), !. 
 estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=N.
-
+%Tiene éxito cuando Estados es la lista ordenada y sin repetidos de los estados del autómata. 
+ 
 % 3)
 %hayTransicion(+Automata, +EstadoInicial, +EstadoFinal)
 hayTransicion(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,T).
@@ -77,21 +81,17 @@ esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
 
 
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
-% Responder aquí.
 %	Respuesta: El predicado esCamino, de la manera en que fue definido, no es reversible con respecto a Camino
 %		Cuando el parametro de "camino" queda sin instanciar, y el automata A contiene ciclos, el predicado se cuelga. Ejemplo:
 %			ejemplo(4,A), esCamino(A, s1, s3, C).
 %		En cambio, cuando el automata A no tiene ciclos, no se cuelga, y el predicado sería reversible con respecto a Camino en ese caso
 
-% 5) 
-
-
-%caminoDeLongitud(+Automata, +N, -Camino, -Etiquetas, ?S1, ?S2)
+% 5) caminoDeLongitud(+Automata, +N, -Camino, -Etiquetas, ?S1, ?S2)
 caminoDeLongitud(A, 1, [S2], [], S2, S2):- estados(A,E), member(S2,E).
 caminoDeLongitud(A, N, C, Etiquetas, S1, S2):- N\=1, estados(A,E), member(S1,E), transicionesDe(A,T), 
-                                    Transicion = (S1,Etiqueta,S3),member(Transicion,T), 
-                                    Nmenos1 is N-1, caminoDeLongitud(A,Nmenos1,C1,E1,S3,S2),
-                                    append([S1],C1,C), append([Etiqueta],E1,Etiquetas).
+                                               Transicion = (S1,Etiqueta,S3),member(Transicion,T), 
+                                               Nmenos1 is N-1, caminoDeLongitud(A,Nmenos1,C1,E1,S3,S2),
+                                               append([S1],C1,C), append([Etiqueta],E1,Etiquetas).
 
 
 % 6) alcanzable(+Automata, +Estado)
