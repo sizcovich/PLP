@@ -111,7 +111,8 @@ automataValido(_).
 
 
 % 8) hayCiclo(+Automata)
-%hayCiclo(A) :- .
+hayCiclo(A) :- estados(A,E),length(E,L),member(X,E), R is L+1, between(1,R,N),caminoDeLongitud(A,N,_,_, X, X), !.
+%La idea es que a partir de cada estado de A se fije si existe un camino de un estado a sí mismo de longitud N, con 1<N<cantidadDeEstados+1
 
 % 9) reconoce(+Automata, ?Palabra)
 reconoce(A, P) :- nonvar(P), ground(P), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales), !.
@@ -149,4 +150,7 @@ test(14) :- forall(member(X, [2, 4, 5, 6, 7, 8, 9]), (ejemplo(X, A), hayCiclo(A)
 test(15) :- not((member(X, [1, 3, 10]), ejemplo(X, A), hayCiclo(A))).
 test(16) :- ejemplo(5,A), not(alcanzable(A,s5)).
 test(17) :- ejemplo(5,A), alcanzable(A,s3).
-tests :- forall(between(1, 17, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
+test(18) :- ejemploMalo(3,A), not(alcanzable(A,s1)).
+test(19) :- ejemploMalo(3,A), not(hayCiclo(A)).
+test(20) :- ejemploMalo(5,A), not(hayCiclo(A)).
+tests :- forall(between(1, 20, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
