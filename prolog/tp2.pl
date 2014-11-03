@@ -101,7 +101,8 @@ caminoDeLongitud(A, N, C, E, S1, S2):- crearCaminos(A,N,S1,S2,C), esCamino(A,S1,
                                        etiquetasDeUnCamino(A,C,E).
 
 % 6) alcanzable(+Automata, +Estado)
-alcanzable(A,E) :- inicialDe(A,I), hayTransicion(A,I,E).
+alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(1,L,N), caminoDeLongitud(A,N,_,_,I,E), !.
+%La idea es que a partir del estado inicial se verifique si existe un camino a E de longitud N, con 1<N<cantidadDeEstados
 
 % 7) automataValido(+Automata)
 automataValido(_).
@@ -110,7 +111,7 @@ automataValido(_).
 
 
 % 8) hayCiclo(+Automata)
-hayCiclo(_).
+%hayCiclo(A) :- .
 
 % 9) reconoce(+Automata, ?Palabra)
 reconoce(A, P) :- nonvar(P), ground(P), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales), !.
@@ -146,4 +147,6 @@ test(12) :- ejemplo(8, A),  findall(P, palabraMasCorta(A, P), Lista), length(Lis
 test(13) :- ejemplo(10, A),  findall(P, palabraMasCorta(A, P), [[p, r, o, l, o, g]]).
 test(14) :- forall(member(X, [2, 4, 5, 6, 7, 8, 9]), (ejemplo(X, A), hayCiclo(A))).
 test(15) :- not((member(X, [1, 3, 10]), ejemplo(X, A), hayCiclo(A))).
-tests :- forall(between(1, 15, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
+test(16) :- ejemplo(5,A), not(alcanzable(A,s5)).
+test(17) :- ejemplo(5,A), alcanzable(A,s3).
+tests :- forall(between(1, 17, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
