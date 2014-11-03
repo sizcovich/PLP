@@ -84,24 +84,18 @@ esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
 %		En cambio, cuando el automata A no tiene ciclos, no se cuelga, y el predicado sería reversible con respecto a Camino en ese caso
 
 % 5) 
-%crearCaminos(+A, +N, ?EstadoInicial, ?EstadoFinal, -Camino)
-crearCaminos(A,1,_,S2,[S2]):- estados(A,E), member(S2,E).
-crearCaminos(A,N,S1,S2,C):- N\=1, estados(A,E), member(S1,E), Nmenos1 is N-1, 
-                          crearCaminos(A,Nmenos1,_,S2,C1), append([S1],C1,C).
 
-%etiquetasDeUnCamino(+A, +Camino, -Etiquetas)
-etiquetasDeUnCamino(_,[],[]).
-etiquetasDeUnCamino(A,[X],[E]):- transicionesDe(A,T), Transicion = (X,E,X), member(Transicion,T).
-etiquetasDeUnCamino(A,[X|[Y|[]]],[E]):- transicionesDe(A,T), Transicion = (X,E,Y), member(Transicion,T).
-etiquetasDeUnCamino(A,[X|[Y|Ls]],LEtiquetas):- Ls\=[], transicionesDe(A,T), Transicion = (X,E,Y), member(Transicion,T),
-                                               etiquetasDeUnCamino(A,[Y|Ls],L1), append([E],L1,LEtiquetas).
 
 %caminoDeLongitud(+Automata, +N, -Camino, -Etiquetas, ?S1, ?S2)
-caminoDeLongitud(A, N, C, E, S1, S2):- crearCaminos(A,N,S1,S2,C), esCamino(A,S1,S2,C), 
-                                       etiquetasDeUnCamino(A,C,E).
+caminoDeLongitud(A, 1, [S2], [], S2, S2):- estados(A,E), member(S2,E).
+caminoDeLongitud(A, N, C, Etiquetas, S1, S2):- N\=1, estados(A,E), member(S1,E), transicionesDe(A,T), 
+                                    Transicion = (S1,Etiqueta,S3),member(Transicion,T), 
+                                    Nmenos1 is N-1, caminoDeLongitud(A,Nmenos1,C1,E1,S3,S2),
+                                    append([S1],C1,C), append([Etiqueta],E1,Etiquetas).
+
 
 % 6) alcanzable(+Automata, +Estado)
-alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(1,L,N), caminoDeLongitud(A,N,_,_,I,E), !.
+alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(2,L,N), caminoDeLongitud(A,N,_,_,I,E), !.
 %La idea es que a partir del estado inicial se verifique si existe un camino a E de longitud N, con 1<N<cantidadDeEstados
 
 % 7) automataValido(+Automata)
@@ -138,7 +132,7 @@ noHayTransicionesRepetidas(A) :- transicionesDe(A,T), borrarDuplicados(T,X), X =
 
 
 % 8) hayCiclo(+Automata)
-hayCiclo(A) :- estados(A,E), length(E,L), member(X,E), R is L+1, between(1,R,N), caminoDeLongitud(A,N,_,_, X, X), !.
+hayCiclo(A) :- estados(A,E), length(E,L), member(X,E), R is L+1, between(2,R,N), caminoDeLongitud(A,N,_,_, X, X), !.
 %La idea es que a partir de cada estado de A se fije si existe un camino de un estado a sí mismo de longitud N, con 1<N<cantidadDeEstados+1
 
 % 9) reconoce(+Automata, ?Palabra)
