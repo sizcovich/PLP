@@ -105,28 +105,35 @@ alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(1,L,N), ca
 %La idea es que a partir del estado inicial se verifique si existe un camino a E de longitud N, con 1<N<cantidadDeEstados
 
 % 7) automataValido(+Automata)
-automataValido(A) :- todosAlcanzables(A), hayEstadoFinal(A), noHayEstadosFinalesRepetidos(A), noHayTransicionesRepetidas(A).
+automataValido(A) :- estadosFinalesValidos(A), todosAlcanzables(A), hayEstadoFinal(A), noHayEstadosFinalesRepetidos(A), noHayTransicionesRepetidas(A).
+%Evalúa todas los predicados presentados con A.
 
 %estadosFinalesValidos(+A)
-%estadosFinalesValidos(A) :- estados(A,E), finalesDe(A,F), member(X,E), not(member(X,F)), caminoDeLongitud(A,2,_,_,X,_), !.
-%todos los estados tienen transiciones salientes exceptuando los finales, que pueden o no tenerlas.
+estadosFinalesValidos(A) :- estados(A,E), finalesDe(A,F), subtract(E,F,M), forall(member(X,M), caminoDeLongitud(A,2,_,_,X,_)), !.
+%Verifica que exista al menos un camino desde cada estado, a menos que el mismo sea uno final
 
 %todosAlcanzables(+A)
 todosAlcanzables(A) :- estados(A,E),inicialDe(A,I), subtract(E,[I],M), forall(member(X,M),alcanzable(A,X)).
+%Verifica que todos los estados sean alcanzables desde el inicial, menos el inicial.
 
 %hayEstadoFinal(+A)
-hayEstadoFinal(A) :- finalesDe(A,F), not(F = []). 
+hayEstadoFinal(A) :- finalesDe(A,F), not(F = []).
+%Dados los estados finales de un autómata, se fija que la lista no sea vacía.
 
 %noHayEstadosFinalesRepetidos(+A)
 noHayEstadosFinalesRepetidos(A) :- finalesDe(A,F), borrarDuplicados(F,X), X = F.
+%Compara la lista de estados finales con ella misma sin sus repetidos.
 
 % borrarDuplicados(+L, -T):
 borrarDuplicados([],[]).
 borrarDuplicados([X|Xs], F) :- member(X, Xs), borrarDuplicados(Xs, F), !.
 borrarDuplicados([X|Xs], [X|F]) :- not(member(X, Xs)), borrarDuplicados(Xs, F), !.
+%Elimina los duplicados de cualquier lista.
 
 %noHayTransicionesRepetidas(+A)
 noHayTransicionesRepetidas(A) :- transicionesDe(A,T), borrarDuplicados(T,X), X = T.
+%Compara la lista de transiciones con ella misma sin repetidos.
+
 %--- NOTA: De acá en adelante se asume que los autómatas son válidos.
 
 
@@ -173,4 +180,5 @@ test(17) :- ejemplo(5,A), alcanzable(A,s3).
 test(18) :- ejemploMalo(3,A), not(alcanzable(A,s1)).
 test(19) :- ejemploMalo(3,A), not(hayCiclo(A)).
 test(20) :- ejemploMalo(5,A), not(hayCiclo(A)).
-tests :- forall(between(1, 20, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
+test(21) :- ejemploMalo(2,A), not(alcanzable(A,sf)).
+tests :- forall(between(1, 21, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
