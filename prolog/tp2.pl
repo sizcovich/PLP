@@ -105,13 +105,33 @@ alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(1,L,N), ca
 %La idea es que a partir del estado inicial se verifique si existe un camino a E de longitud N, con 1<N<cantidadDeEstados
 
 % 7) automataValido(+Automata)
-automataValido(_).
+automataValido(A) :- todosAlcanzables(A), hayEstadoFinal(A), noHayEstadosFinalesRepetidos(A), noHayTransicionesRepetidas(A).
 
+%estadosFinalesValidos(+A)
+%estadosFinalesValidos(A) :- estados(A,E), finalesDe(A,F), member(X,E), not(member(X,F)), caminoDeLongitud(A,2,_,_,X,_), !.
+%todos los estados tienen transiciones salientes exceptuando los finales, que pueden o no tenerlas.
+
+%todosAlcanzables(+A)
+todosAlcanzables(A) :- estados(A,E),inicialDe(A,I), subtract(E,[I],M), forall(member(X,M),alcanzable(A,X)).
+
+%hayEstadoFinal(+A)
+hayEstadoFinal(A) :- finalesDe(A,F), not(F = []). 
+
+%noHayEstadosFinalesRepetidos(+A)
+noHayEstadosFinalesRepetidos(A) :- finalesDe(A,F), borrarDuplicados(F,X), X = F.
+
+% borrarDuplicados(+L, -T):
+borrarDuplicados([],[]).
+borrarDuplicados([X|Xs], F) :- member(X, Xs), borrarDuplicados(Xs, F), !.
+borrarDuplicados([X|Xs], [X|F]) :- not(member(X, Xs)), borrarDuplicados(Xs, F), !.
+
+%noHayTransicionesRepetidas(+A)
+noHayTransicionesRepetidas(A) :- transicionesDe(A,T), borrarDuplicados(T,X), X = T.
 %--- NOTA: De acá en adelante se asume que los autómatas son válidos.
 
 
 % 8) hayCiclo(+Automata)
-hayCiclo(A) :- estados(A,E),length(E,L),member(X,E), R is L+1, between(1,R,N),caminoDeLongitud(A,N,_,_, X, X), !.
+hayCiclo(A) :- estados(A,E), length(E,L), member(X,E), R is L+1, between(1,R,N), caminoDeLongitud(A,N,_,_, X, X), !.
 %La idea es que a partir de cada estado de A se fije si existe un camino de un estado a sí mismo de longitud N, con 1<N<cantidadDeEstados+1
 
 % 9) reconoce(+Automata, ?Palabra)
