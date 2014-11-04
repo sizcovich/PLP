@@ -28,10 +28,13 @@ finalesDe(a(_, F, _), F).
 
 transicionesDe(a(_, _, T), T).
 
+% transicionDesde(+L,-D)
 transicionDesde((D,_,_),D).
 
+% transicionPor(+L,-P)
 transicionPor((_,P,_),P).
 
+% transicionHacia(+L,-H)
 transicionHacia((_,_,H),H).
 
 %Auxiliar dada en clase
@@ -43,8 +46,9 @@ desde(X, Y):-desde(X, Z),  Y is Z + 1.
 %%Predicados pedidos.
 
 % 1) %esDeterministico(+Automata)
+% Chequea que no existan 2 transiciones que empiecen en el mismo nodo, tengan el mismo label en la transicion, y vayan a nodos diferentes
 esDeterministico(a(_,_,[])).
-esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), not(member((D,P,_),L)),
+esDeterministico(a(I,F, [X|L])) :- transicionDesde(X,D), transicionPor(X,P), transicionHacia(X,H), not((member((D,P,H2),L), H2\=H)),
                                    esDeterministico(a(I,F,L)), !.
 
 % 2) 
@@ -136,17 +140,45 @@ hayCiclo(A) :- estados(A,E), length(E,L), member(X,E), R is L+1, between(2,R,N),
 %La idea es que a partir de cada estado de A se fije si existe un camino de un estado a sí mismo de longitud N, con 1<N<cantidadDeEstados+1
 
 % 9) reconoce(+Automata, ?Palabra)
+% Aca se utiliza la tecnica de Generate & Test.
+%	Se separan en 3 casos:
+%	1) P esta instanciada y no contiene variables libres:
+%		En este caso chequeo si P es una de las posibles listas de Etiquetas de longitud |P|+1 que me genera el automata
+%	2) P esta semi-instanciada (contiene variables libres):
+%		En este caso considero todas las posibles listas de Etiquetas de longitud |P|+q que me genera el automata, y 
+%		me quedo con aquellas con las cuales las variables libres de P tienen una sustitucion tal que P matchee sintacticamente
+%		con esa lista de Etiquetas
+%	3) P no esta instanciada:
+%		En este caso genero todas las palabras (listas de Etiquetas) que reconoce el automata.
+%		Por cada numero natural N, genero las lista de etiquetas de longitud N y chequeo si es una palabra valida
 reconoce(A, P) :- nonvar(P), ground(P), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales), !.
 reconoce(A, P) :- nonvar(P), not(ground(P)), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, E, Init, Fin), P = E, member(Fin, Finales).
 reconoce(A, P) :- var(P), desde(1,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, E, Init, Fin), member(Fin, Finales), P=E.
 
 % 10) 
 % minimaLongitudAceptada(+A,-L)
-minimaLongitudAceptada(A, L) :- inicialDe(A,Init), finalesDe(A,Finales), desde(1,N), caminoDeLongitud(A, N, _, _, Init, Fin), member(Fin,Finales), !, L=N.
+% Como aca ya puedo suponer que el automata es valido, entonces se que al menos reconoce 1 palabra.
+% Es por esto que este predicado no se va a colgar (si se cumple esa precondicion)
+% Se hace una busqueda, empezando con N=1 (y aumentando de a 1) hasta encontrar un camino de longitud N, y que la palabra
+% 	que genera sea reconocida por el automata.
+% Una vez encontrada esta palabra, se corta el arbol de busqueda
+minimaLongitudAceptada(A, L) :- inicialDe(A,Init), finalesDe(A,Finales), desde(1,N), caminoDeLongitud(A, N, _, E, Init, Fin), member(Fin, Finales), reconoce(A,E), !, L=N.
 
 %PalabraMásCorta(+Automata, ?Palabra)
-palabraMasCorta(A, P) :- nonvar(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), P=E, member(Fin, Finales),!.
-palabraMasCorta(A, P) :- var(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), P=E, member(Fin, Finales).
+%	De nuevo se separan en 3 casos:
+%	1) P esta instanciada y no contiene variables libres:
+%		Chequeo cual es la minima longitud de palabra que acepta el automata (con el predicado anterior), y chequeo
+%		si P es alguna palabra reconocida (generando la lista de etiquetas de caminos de esa longitud minima)
+%		Si P matchea sintacticamente con alguna de estas palabras aceptadas de esa longitud, se corta el arbol de busqueda
+%	2) P esta semi-instanciada:
+%	3) P no esta instanciada:
+%		En estos 2 casos se hace lo mismo (y bastante parecido al primer caso)
+%		Se hace exactamente lo mismo que en el caso 1), excepto que no se corta el arbol de busqueda, ya que veo si existe otra
+%			sustitucion (ya que P es una variable libre o contiene alguna) que haga matchear sintaticamente a P con alguna otra de las
+%			palabras aceptadas con esa longitud minima
+palabraMasCorta(A, P) :- nonvar(P), ground(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), member(Fin,Finales), reconoce(A,E), P=E, !.
+palabraMasCorta(A, P) :- nonvar(P), not(ground(P)), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), member(Fin,Finales), reconoce(A,E), P=E.
+palabraMasCorta(A, P) :- var(P), minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, Len, _, E, Init, Fin), member(Fin,Finales), reconoce(A,E), P=E.
 
 %-----------------
 %----- Tests -----
@@ -175,4 +207,8 @@ test(18) :- ejemploMalo(3,A), not(alcanzable(A,s1)).
 test(19) :- ejemploMalo(3,A), not(hayCiclo(A)).
 test(20) :- ejemploMalo(5,A), not(hayCiclo(A)).
 test(21) :- ejemploMalo(2,A), not(alcanzable(A,sf)).
-tests :- forall(between(1, 21, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
+test(22) :- ejemplo(5,A), esDeterministico(A).
+test(23) :- ejemplo(4,A), not(esDeterministico(A)).
+test(24) :- ejemplo(7,A), palabraMasCorta(A,[a,b]).
+test(25) :- ejemplo(4,A), findall(L, palabraMasCorta(A,L), Lista), length(Lista, 2), sort(Lista, [[a], [b]]).
+tests :- forall(between(1, 25, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
