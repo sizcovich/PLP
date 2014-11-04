@@ -12,6 +12,9 @@ ejemplo(9, a(s1, [s1], [(s1, a, s2), (s2, b, s1)])).
 ejemplo(10, a(s1, [s10, s11], 
         [(s2, a, s3), (s4, a, s5), (s9, a, s10), (s5, d, s6), (s7, g, s8), (s15, g, s11), (s6, i, s7), (s13, l, s14), (s8, m, s9), (s12, o, s13), (s14, o, s15), (s1, p, s2), (s3, r, s4), (s2, r, s12), (s10, s, s11)])).
 ejemplo(11, a(s1, [s2,s3], [(s1,a,s2), (s2,b,s3)])).
+ejemploAgregado(12, a(s1, [s2,s3], [])).
+ejemploAgregado(13, a(s1, [], [])).
+ejemploAgregado(14, a(s1, [], [(s1,e,s2),(s2,l,s3),(s3,/,s4),(s4,t,s5),(s5,p,s6),(s6,/,s7),(s7,a,s8),(s8,n,s9),(s9,d,s10),(s10,a,s11),(s11,/,s12),(s12,b,s13),(s13,i,s14),(s14,e,s15),(s15,n,s16)])).
 
 ejemploMalo(1, a(s1, [s2], [(s1, a, s1), (s1, b, s2), (s2, b, s2), (s2, a, s3)])). %s3 es un estado sin salida.
 ejemploMalo(2, a(s1, [sf], [(s1, a, s1), (sf, b, sf)])). %sf no es alcanzable.
@@ -61,7 +64,7 @@ concatenar([], L2, L2).
 estadosDeLasTransiciones([],[]).
 estadosDeLasTransiciones([X|Ls],L):- estadosDeLasTransiciones(Ls,M), transicionDesde(X,D), transicionHacia(X,H),
                                      concatenar([D],[H],L1), concatenar(L1,M,L).
-%Estados es la lista con todos los estados que pertenecen a las transiciones de la lista Transiciones. 
+%Estados, es la lista con todos los estados que pertenecen a las transiciones de la lista Transiciones. 
 
 %estadosSinRepetidos(+Automata, -Estado)
 estadosSinRepetidos(A,E):- inicialDe(A,I), finalesDe(A,F), transicionesDe(A,T), estadosDeLasTransiciones(T,T1), 
@@ -76,13 +79,13 @@ estados(A, E):- nonvar(E), estadosSinRepetidos(A,M), setof(X, member(X,E),N), M=
 % 3)
 %hayTransicion(+Automata, +EstadoInicial, +EstadoFinal)
 hayTransicion(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transicion,T).
+%Tiene exito si existe una transicion entre el EstadoInicial y el EstadoFinal
 
 %esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
 esCamino(_, _, _, []):- false.
 esCamino(A, X, X, [X]):- estados(A,E), member(X,E), !.
 esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]), !.
-
-
+%Se fija si hay una transicion entre todos los estados del camino comenzando por el inicial y terminando en el final
 
 % 4) ¿el predicado anterior es o no reversible con respecto a Camino y por qué?
 %	Respuesta: El predicado esCamino, de la manera en que fue definido, no es reversible con respecto a Camino
@@ -96,7 +99,8 @@ caminoDeLongitud(A, N, C, Etiquetas, S1, S2):- N\=1, estados(A,E), member(S1,E),
                                                Transicion = (S1,Etiqueta,S3),member(Transicion,T), 
                                                Nmenos1 is N-1, caminoDeLongitud(A,Nmenos1,C1,E1,S3,S2),
                                                append([S1],C1,C), append([Etiqueta],E1,Etiquetas).
-
+%Crea una transicion a partir de un nodo inicial. Luego, la concatena a una lista de longitud N-1 unificando 
+%al primer nodo de dicha lista, con el nodo destino de la transicion.
 
 % 6) alcanzable(+Automata, +Estado)
 alcanzable(A,E) :- inicialDe(A,I), estados(A,K), length(K,L), between(2,L,N), caminoDeLongitud(A,N,_,_,I,E), !.
@@ -207,8 +211,28 @@ test(18) :- ejemploMalo(3,A), not(alcanzable(A,s1)).
 test(19) :- ejemploMalo(3,A), not(hayCiclo(A)).
 test(20) :- ejemploMalo(5,A), not(hayCiclo(A)).
 test(21) :- ejemploMalo(2,A), not(alcanzable(A,sf)).
-test(22) :- ejemplo(5,A), esDeterministico(A).
-test(23) :- ejemplo(4,A), not(esDeterministico(A)).
-test(24) :- ejemplo(7,A), palabraMasCorta(A,[a,b]).
-test(25) :- ejemplo(4,A), findall(L, palabraMasCorta(A,L), Lista), length(Lista, 2), sort(Lista, [[a], [b]]).
-tests :- forall(between(1, 25, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
+test(22) :- ejemploMalo(5,A), estados(A,[s1,s2,s3]).
+test(23) :- ejemploMalo(5,A), estados(A,[s1,s3,s2,s3]).
+test(24) :- ejemploMalo(5,A), estados(A,E), E = [s1,s2,s3].
+test(25) :- ejemploMalo(7,A), estados(A,[s1,s2,s3]).
+test(26) :- ejemploAgregado(12,A), estados(A,[s1,s2,s3]).
+test(27) :- ejemploAgregado(13,A), estados(A,[s1]).
+test(28) :- ejemplo(5,A), esCamino(A,s1,s3,[s1,s2,s3]).
+test(29) :- ejemplo(5,A), not(esCamino(A,s3,s1,[s1,s2,s3])).
+test(30) :- ejemplo(5,A), not(esCamino(A,s3,s1,[s1,s2,s3])).
+test(31) :- ejemplo(5,A), not(esCamino(A,s1,s5,[s1,s2,s3])).
+test(32) :- ejemplo(5,A), esCamino(A,S1,S3,[s1,s2,s3]), S1=s1, S3=s3.
+test(33) :- ejemplo(5,A), esCamino(A,s1,S3,[s1,s2,s3]), S3=s3.
+test(34) :- ejemplo(7,A), caminoDeLongitud(A,1,C,E,S1,S2), member(C,[[s1],[s2],[s3]]), E=[], S1=S2, 
+            member(S1,[s1,s2,s3]) .
+test(35) :- ejemplo(7,A), caminoDeLongitud(A,2,C,E,s1,s3), C=[s1,s3], E=[a].
+test(36) :- ejemplo(7, A), not(caminoDeLongitud(A, 2, _, _, _, s1)).
+test(37) :- ejemploAgregado(14,A), caminoDeLongitud(A,16,C,E,s1,s16), 
+            C=[s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16], 
+            E=[e,l,/,t,p,/,a,n,d,a,/,b,i,e,n].
+test(38) :- ejemplo(5,A), esDeterministico(A).
+test(39) :- ejemplo(4,A), not(esDeterministico(A)).
+test(40) :- ejemplo(7,A), palabraMasCorta(A,[a,b]).
+test(41) :- ejemplo(4,A), findall(L, palabraMasCorta(A,L), Lista), length(Lista, 2), sort(Lista, [[a], [b]]).
+
+tests :- forall(between(1, 41, N), test(N)). %IMPORTANTE: Actualizar la cantidad total de tests para contemplar los que agreguen ustedes.
