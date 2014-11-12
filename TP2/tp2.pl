@@ -81,7 +81,6 @@ hayTransicion(A,I,F):- transicionesDe(A,T), Transicion = (I,_,F), member(Transic
 %Tiene exito si existe una transicion entre el EstadoInicial y el EstadoFinal
 
 %esCamino(+Automata, ?EstadoInicial, ?EstadoFinal, +Camino)
-%%%%%esCamino(_, _, _, []):- false. 										 %%%%%%%%%%% BORRAR!!!
 esCamino(A, X, X, [X]):- estados(A,E), member(X,E).
 esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]).
 %Se fija si hay una transicion entre todos los estados del camino comenzando por el inicial y terminando en el final
