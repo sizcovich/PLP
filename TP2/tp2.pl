@@ -144,7 +144,8 @@ hayCiclo(A) :- estados(A,E), length(E,L), member(X,E), R is L+1, between(2,R,N),
 
 % 9) reconoce(+Automata, ?Palabra)
 reconoce(A, P) :- nonvar(P), length(P,Len), CantEstados is Len+1, inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, CantEstados, _, P, Init, Fin), member(Fin, Finales).
-reconoce(A, P) :- var(P), desde(1,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, P, Init, Fin), member(Fin, Finales).
+reconoce(A, P) :- var(P), not(hayCiclo(A)), estados(A,Estados), length(Estados,Len), between(1,Len,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, P, Init, Fin), member(Fin, Finales).
+reconoce(A, P) :- var(P), hayCiclo(A), desde(1,N), inicialDe(A,Init), finalesDe(A,Finales), caminoDeLongitud(A, N, _, P, Init, Fin), member(Fin, Finales).
 % Aca se utiliza la tecnica de Generate & Test.
 %	Se separan en 2 casos:
 %	1) P esta instanciada o contiene variables libres:
