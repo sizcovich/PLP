@@ -4,11 +4,11 @@
 
 \parindent=20pt
 \parskip=8pt
-\usepackage[width=15.5cm, left=3cm, top=2.5cm, height= 24.5cm]{geometry}
+\usepackage[width=17.5cm, left=1cm, top=2.5cm, height= 24.5cm]{geometry}
 \usepackage[spanish]{babel}
 \usepackage[utf8]{inputenc}
 %\usepackage{caratula}
-
+\usepackage{listings}
 % Acomodo fancyhdr.
 \pagestyle{fancy}
 \thispagestyle{fancy}
@@ -17,10 +17,17 @@
 \renewcommand{\thesubsubsection}{\thesubsection.\alph{subsubsection}}
 
 
+\lstset{ %
+  breakatwhitespace=true,         % sets if automatic breaks should only happen at whitespace
+  language=Prolog,                 % the language of the code
+  tabsize=2,                       % sets default tabsize to 2 spaces
+}
+
+
 \author{Paradigmas de Lenguajes de Programación, DC, UBA.}
 \date{}
 %\title{}
-
+\raggedbottom
 \begin{document}
 	
 \thispagestyle{caratula}
@@ -71,4 +78,8 @@ Vita, Sebastián        & 149/11 & sebastian\_vita@yahoo.com.ar\\
 \end{center}
 
 \newpage
+
+\small
+\lstinputlisting[language=Prolog]{tp2.pl}
+
 \end{document}
