@@ -99,7 +99,10 @@ esCamino(A, X, F, [X|[Y|Ls]]):- hayTransicion(A,X,Y), esCamino(A,Y,F,[Y|Ls]).
 %	Respuesta: El predicado esCamino, de la manera en que fue definido, no es reversible con respecto a 
 % Camino.
 %	Cuando el parametro de "camino" queda sin instanciar, y el automata A contiene ciclos, el predicado 
-% se cuelga. Ejemplo:	ejemplo(4,A), esCamino(A, s1, s3, C).
+% 	se cuelga. Supongamos que el ciclo es el siguiente: s1 -> s2 -> ... -> sn -> s1. El predicado esCamino
+%	siempre va a detectar: hayTransicion(A,s1,s2), luego hayTransicion(A,s2,sn) ... hayTransicion(sn,s1)
+%	y luego va a volver a detectar hayTransicion(A,s1,s2). Es por esto que se cuelga.
+% Ejemplo de automata que se cuelga usando esCamino: ejemplo(4,A), esCamino(A, s1, s3, C).
 %	En cambio, cuando el automata A no tiene ciclos, no se cuelga, y el predicado sería reversible con 
 % respecto a Camino en ese caso
 
@@ -173,11 +176,18 @@ reconoce(A, P) :- var(P), hayCiclo(A), desde(1,N), inicialDe(A,Init), finalesDe(
 %	Se separan en 2 casos:
 %	1) P esta instanciada o contiene variables libres:
 %		En este caso chequeo si P es una de las posibles listas de Etiquetas de longitud |P|+1 
-%   que me genera el automata
+%   	que me genera el automata
 %	2) P no esta instanciada:
-%		En este caso genero todas las palabras (listas de Etiquetas) que reconoce el automata.
-%		Por cada numero natural N, genero las lista de etiquetas de longitud N y chequeo si es 
-%   una palabra valida
+%		Aca es necesario volver a separar en 2 casos.
+%		A) El automata tiene ciclos:
+%			En este caso genero todas las palabras (listas de Etiquetas) que reconoce el automata.
+%			Por cada numero natural N, genero las lista de etiquetas de longitud N y chequeo si es 
+%   		una palabra valida
+%		B) El automata no tiene ciclos:
+%			Es analogo al caso A), con la diferencia que se busca con N desde 1 hasta la cantidad de estados
+%			del automata (Esto es porque la longitud maxima posible de estados de una palabra reconocida por un 
+%			automata sin ciclos, es justamente la cantidad de estados). Si se buscase para todo numero natural N,
+%			entonces este predicado se colgaria una vez que ya detecto todas las palabras que se reconocen.
 
 % 10) %PalabraMásCorta(+Automata, ?Palabra)
 palabraMasCorta(A, P) :- minimaLongitudAceptada(A,Len), inicialDe(A,Init), finalesDe(A,Finales), 
